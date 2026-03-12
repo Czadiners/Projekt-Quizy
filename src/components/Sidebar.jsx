@@ -1,9 +1,13 @@
 import { useState } from "react";
+import {BrowserRouter as Router,Routes,Route,Link} from "react-router";
+
+import LoginPage from "../pages/LoginPage";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
+    <Router>
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
       <a href="MainPage.jsx">maciej</a>
       <button className="close-btn" onClick={toggleSidebar}>
@@ -23,7 +27,10 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <button><a href="LoginPage.jsx">Zaloguj</a></button>
+                <Link to="/LoginPage">Zaloguj</Link>
+                <Routes>
+                  <Route path="/LoginPage" element={<LoginPage />}/>
+                </Routes>
                 <button>Utwórz konto</button>
               </>
             ) : (
@@ -38,6 +45,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
         <li>Manage your quiz</li>
       </ul>
     </div>
+    </Router>
   );
 }
 

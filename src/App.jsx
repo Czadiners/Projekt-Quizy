@@ -8,6 +8,11 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  //logowanie zmienne
+  const [login,setLogin] = useState("");
+  const [password,setPasword] = useState("");
+  //logowanie zmienne
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -21,6 +26,8 @@ function App() {
         toggleSidebar={toggleSidebar}
         isLoggedIn={isLoggedIn}
         setIsLoggedIn={setIsLoggedIn}
+        setLogin={setLogin}
+        setPasword={setPasword}
       />
 
       <main className="main-content">

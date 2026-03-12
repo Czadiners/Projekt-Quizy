@@ -5,6 +5,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
 
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
+      <a href="MainPage.jsx">maciej</a>
       <button className="close-btn" onClick={toggleSidebar}>
         ✕
       </button>
@@ -22,7 +23,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <button>Zaloguj</button>
+                <button><a href="LoginPage.jsx">Zaloguj</a></button>
                 <button>Utwórz konto</button>
               </>
             ) : (

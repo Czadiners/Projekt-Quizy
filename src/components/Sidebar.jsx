@@ -1,15 +1,17 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
+      <Link to="/">maciej</Link>
+
       <button className="close-btn" onClick={toggleSidebar}>
         ✕
       </button>
 
-      {/* PROFIL */}
       <div className="profile-section">
         <div
           className={`profile-icon ${isLoggedIn ? "logged" : "guest"}`}
@@ -22,7 +24,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <button>Zaloguj</button>
+                <Link to="/login">Zaloguj</Link>
                 <button>Utwórz konto</button>
               </>
             ) : (

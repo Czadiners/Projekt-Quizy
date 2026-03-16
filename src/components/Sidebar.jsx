@@ -1,20 +1,17 @@
 import { useState } from "react";
-import {BrowserRouter as Router,Routes,Route,Link} from "react-router";
-
-import LoginPage from "../pages/LoginPage";
+import { Link } from "react-router-dom";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
-    <Router>
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
-      <a href="MainPage.jsx">maciej</a>
+      <Link to="/">maciej</Link>
+
       <button className="close-btn" onClick={toggleSidebar}>
         ✕
       </button>
 
-      {/* PROFIL */}
       <div className="profile-section">
         <div
           className={`profile-icon ${isLoggedIn ? "logged" : "guest"}`}
@@ -27,10 +24,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <Link to="/LoginPage">Zaloguj</Link>
-                <Routes>
-                  <Route path="/LoginPage" element={<LoginPage />}/>
-                </Routes>
+                <Link to="/login">Zaloguj</Link>
                 <button>Utwórz konto</button>
               </>
             ) : (
@@ -45,7 +39,6 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
         <li>Manage your quiz</li>
       </ul>
     </div>
-    </Router>
   );
 }
 

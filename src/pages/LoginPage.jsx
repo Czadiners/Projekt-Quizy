@@ -1,15 +1,42 @@
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { useState } from "react";
+import { auth } from "../components/Firebase";
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { useNavigate } from "react-router";
 
 function LoginPage() {
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const login = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Zalogowano!");
+      navigate('/')
+    } catch (err) {
+      alert("Błąd logowania" + err.message);
+    }
+  };
+
   return (
     <div className="loginPage">
-      <section className="hero">
-        <h1>ZALOGUj</h1>
-      </section>
+      <h2>Login</h2>
 
-      <section className="spacer"></section>
+      <input
+        placeholder="email"
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
+      <input
+        type="password"
+        placeholder="hasło"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button onClick={login}>Login</button>
       <Footer />
     </div>
   );

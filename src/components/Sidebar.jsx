@@ -1,8 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import {auth} from "../components/Firebase";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setIsLoggedIn(false);
+      console.log("Wylogowano pomyślnie");
+    } catch (error) {
+      alert("Błąd podczas wylogowywania: " + error.message);
+    }
+  };
 
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
@@ -14,10 +26,11 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
 
       <div className="profile-section">
         <div
-          className={`profile-icon ${isLoggedIn ? "logged" : "guest"}`}
+          className="profile-icon"
+          style={{ background: isLoggedIn ? "#4caf50" : "#888"}}
           onClick={() => setProfileOpen(!profileOpen)}
         >
-          👤
+          👾
         </div>
 
         {profileOpen && (
@@ -25,10 +38,10 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
             {!isLoggedIn ? (
               <>
                 <Link to="/login">Zaloguj</Link>
-                <button>Utwórz konto</button>
+                <Link to= "/register">Utwórz konto</Link>
               </>
             ) : (
-              <button onClick={() => setIsLoggedIn(false)}>Wyloguj</button>
+              <button onClick={handleLogout}>Wyloguj</button>
             )}
           </div>
         )}

@@ -73,7 +73,10 @@ body {
   font-size: 32px;
   cursor: pointer;
   padding: 10px;
-  border-radius: 50%;
+  border-radius: 100%;
+  aspect-ratio: 1/1;
+  width: 64px;
+  margin:auto;
 }
 
 .profile-icon.guest {

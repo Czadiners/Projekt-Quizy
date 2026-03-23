@@ -124,3 +124,16 @@ body {
   padding: 40px;
   background: #f2f2f2;
 }
+
+/* LINKS */
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.sidebar ul li a:hover,
+.profile-menu a:hover {
+  color: #4caf50;
+  transition: 0.3s;
+}

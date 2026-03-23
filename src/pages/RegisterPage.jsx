@@ -11,26 +11,26 @@ function RegisterPage() {
       await createUserWithEmailAndPassword(auth, email, password);
       alert("Konto utworzone!");
     } catch (err) {
-      alert(err.message);
+      alert("Wystąpił błąd podczas rejestracji");
     }
   };
 
   return (
     <div>
-      <h2>Register</h2>
+      <h2>Rejestracja</h2>
 
       <input
-        placeholder="email"
+        placeholder="Adres e-mail"
         onChange={(e) => setEmail(e.target.value)}
       />
 
       <input
         type="password"
-        placeholder="hasło"
+        placeholder="Hasło"
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={register}>Register</button>
+      <button onClick={register}>Zarejestruj się</button>
     </div>
   );
 }

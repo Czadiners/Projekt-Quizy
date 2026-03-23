@@ -1,25 +1,29 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { Link, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
 import {auth} from "../components/Firebase";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       setIsLoggedIn(false);
-      console.log("Wylogowano pomyślnie");
+      toggleSidebar();
     } catch (error) {
       alert("Błąd podczas wylogowywania: " + error.message);
     }
   };
 
+  const handleNavigate = (path) => {
+    navigate(path);
+    toggleSidebar();
+  };
+
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
-      <Link to="/">maciej</Link>
-
       <button className="close-btn" onClick={toggleSidebar}>
         ✕
       </button>
@@ -37,19 +41,24 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <Link to="/login">Zaloguj</Link>
-                <Link to= "/register">Utwórz konto</Link>
+                <button onClick={() => handleNavigate("/login")}>Zaloguj się</button>
+                <button onClick={() => handleNavigate("/register")}>Utwórz konto</button>
               </>
             ) : (
-              <button onClick={handleLogout}>Wyloguj</button>
+              <button onClick={handleLogout}>Wyloguj się</button>
             )}
           </div>
         )}
       </div>
 
       <ul>
-        <li>Utwórz quiz</li>
-        <li>Manage your quiz</li>
+        <li onClick={() => handleNavigate("/")}>Strona główna</li>
+        {isLoggedIn && (
+          <>
+            <li>Utwórz quiz</li>
+            <li>Zarządzaj quizami</li>
+          </>
+        )}
       </ul>
     </div>
   );

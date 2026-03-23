@@ -1,5 +1,4 @@
 import Footer from "../components/Footer";
-import Header from "../components/Header";
 import { useState } from "react";
 import { auth } from "../components/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth"
@@ -17,26 +16,26 @@ function LoginPage() {
       alert("Zalogowano!");
       navigate('/')
     } catch (err) {
-      alert("Błąd logowania" + err.message);
+      alert("Wprowadzono nieprawidłowe dane");
     }
   };
 
   return (
     <div className="loginPage">
-      <h2>Login</h2>
+      <h2>Logowanie</h2>
 
       <input
-        placeholder="email"
+        placeholder="Adres e-mail"
         onChange={(e) => setEmail(e.target.value)}
       />
 
       <input
         type="password"
-        placeholder="hasło"
+        placeholder="Hasło"
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button onClick={login}>Login</button>
+      <button onClick={login}>Zaloguj się</button>
       <Footer />
     </div>
   );

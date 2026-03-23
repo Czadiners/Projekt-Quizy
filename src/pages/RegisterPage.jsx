@@ -11,7 +11,7 @@ function RegisterPage() {
       await createUserWithEmailAndPassword(auth, email, password);
       alert("Konto utworzone!");
     } catch (err) {
-      alert(err.message);
+      alert("Wystąpił błąd podczas rejestracji");
     }
   };
 

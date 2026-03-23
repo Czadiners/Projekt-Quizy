@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { auth, db, storage } from "../components/Firebase";
+import { auth, db } from "../components/Firebase";
 
 const emptyQuestion = () => ({
   question: "",
-  imageFile: null,
-  imagePreview: null,
   answers: ["", "", "", ""],
   correctIndex: 0,
 });
@@ -18,8 +15,6 @@ function CreateQuizPage() {
   const [questions, setQuestions] = useState([emptyQuestion()]);
   const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
-
-  // --- Obsługa pytań ---
 
   const addQuestion = () => {
     setQuestions([...questions, emptyQuestion()]);
@@ -41,24 +36,6 @@ function CreateQuizPage() {
     setQuestions(updated);
   };
 
-  const handleImageChange = (index, file) => {
-    if (!file) return;
-    const preview = URL.createObjectURL(file);
-    const updated = [...questions];
-    updated[index].imageFile = file;
-    updated[index].imagePreview = preview;
-    setQuestions(updated);
-  };
-
-  const removeImage = (index) => {
-    const updated = [...questions];
-    updated[index].imageFile = null;
-    updated[index].imagePreview = null;
-    setQuestions(updated);
-  };
-
-  // --- Zapis do Firebase ---
-
   const handleSave = async () => {
     if (!title.trim()) {
       alert("Podaj tytuł quizu.");
@@ -78,34 +55,16 @@ function CreateQuizPage() {
 
     setSaving(true);
     try {
-      const savedQuestions = await Promise.all(
-        questions.map(async (q) => {
-          let imageUrl = null;
-
-          if (q.imageFile) {
-            const storageRef = ref(
-              storage,
-              `quiz-images/${auth.currentUser.uid}/${Date.now()}_${q.imageFile.name}`
-            );
-            await uploadBytes(storageRef, q.imageFile);
-            imageUrl = await getDownloadURL(storageRef);
-          }
-
-          return {
-            question: q.question,
-            imageUrl,
-            answers: q.answers,
-            correctIndex: q.correctIndex,
-          };
-        })
-      );
-
       await addDoc(collection(db, "quizzes"), {
         title,
         description,
         authorId: auth.currentUser.uid,
         createdAt: serverTimestamp(),
-        questions: savedQuestions,
+        questions: questions.map((q) => ({
+          question: q.question,
+          answers: q.answers,
+          correctIndex: q.correctIndex,
+        })),
       });
 
       alert("Quiz został zapisany!");
@@ -116,8 +75,6 @@ function CreateQuizPage() {
       setSaving(false);
     }
   };
-
-  // --- Render ---
 
   return (
     <div className="create-quiz-page">
@@ -158,25 +115,6 @@ function CreateQuizPage() {
               value={q.question}
               onChange={(e) => updateQuestion(qIndex, "question", e.target.value)}
             />
-
-            <div className="image-upload">
-              {q.imagePreview ? (
-                <div className="image-preview">
-                  <img src={q.imagePreview} alt="Podgląd" />
-                  <button onClick={() => removeImage(qIndex)}>Usuń zdjęcie</button>
-                </div>
-              ) : (
-                <label className="upload-label">
-                  + Dodaj zdjęcie (opcjonalnie)
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleImageChange(qIndex, e.target.files[0])}
-                  />
-                </label>
-              )}
-            </div>
 
             <div className="answers-list">
               {q.answers.map((answer, aIndex) => (

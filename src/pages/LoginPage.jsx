@@ -17,7 +17,7 @@ function LoginPage() {
       alert("Zalogowano!");
       navigate('/')
     } catch (err) {
-      alert("Błąd logowania" + err.message);
+      alert("Wprowadzono nieprawidłowe dane");
     }
   };
 

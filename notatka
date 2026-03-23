@@ -6,3 +6,5 @@ punkty przy pytaniach
 zrobic ze nie da sie dodac nastepnego pytania gdy nie jest poprzednie dokonczone jakby
 styl strony
 zarzadzanie quizami
+obsługa błędów -> zamiast alert na stronie bo to wygląda szpetnie cos innego wykoimbinowac
+możliwość grania normalnie w te quizy bez pobierania niczego?

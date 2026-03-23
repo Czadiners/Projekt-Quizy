@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import {auth} from "../components/Firebase";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
   const [profileOpen, setProfileOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
@@ -15,11 +14,6 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
     } catch (error) {
       alert("Błąd podczas wylogowywania: " + error.message);
     }
-  };
-
-  const handleNavigate = (path) => {
-    navigate(path);
-    toggleSidebar();
   };
 
   return (
@@ -41,8 +35,8 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <button onClick={() => handleNavigate("/login")}>Zaloguj się</button>
-                <button onClick={() => handleNavigate("/register")}>Utwórz konto</button>
+                <Link to="/login" onClick={toggleSidebar}>Zaloguj się</Link>
+                <Link to="/register" onClick={toggleSidebar}>Utwórz konto</Link>
               </>
             ) : (
               <button onClick={handleLogout}>Wyloguj się</button>
@@ -52,11 +46,17 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
       </div>
 
       <ul>
-        <li onClick={() => handleNavigate("/")}>Strona główna</li>
+        <li>
+          <Link to="/" onClick={toggleSidebar}>Strona główna</Link>
+        </li>
         {isLoggedIn && (
           <>
-            <li>Utwórz quiz</li>
-            <li>Zarządzaj quizami</li>
+            <li>
+              <Link to="/create" onClick={toggleSidebar}>Utwórz quiz</Link>
+            </li>
+            <li>
+              <Link to="/manage" onClick={toggleSidebar}>Zarządzaj quizami</Link>
+            </li>
           </>
         )}
       </ul>

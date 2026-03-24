@@ -5,6 +5,7 @@ import MainPage from "./pages/MainPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CreateQuizPage from "./pages/CreateQuizPage";
+import ManageQuizzesPage from "./pages/ManageQuizzesPage";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
@@ -18,45 +19,36 @@ function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-      }
+      setIsLoggedIn(!!user);
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  if (isLoading) {
-    return <div>Ładowanie...</div>;
-  }
+  if (isLoading) return <div>Ładowanie...</div>;
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+
+  const ProtectedRoute = ({ children }) =>
+    isLoggedIn ? children : <Navigate to="/login" />;
 
   return (
     <div className="app">
       <Router>
         <Header toggleSidebar={toggleSidebar} />
-
         <Sidebar
           isOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
           isLoggedIn={isLoggedIn}
           setIsLoggedIn={setIsLoggedIn}
         />
-
         <main className="main-content">
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/create"
-              element={isLoggedIn ? <CreateQuizPage /> : <Navigate to="/login" />}
-            />
+            <Route path="/create" element={<ProtectedRoute><CreateQuizPage /></ProtectedRoute>} />
+            <Route path="/manage" element={<ProtectedRoute><ManageQuizzesPage /></ProtectedRoute>} />
           </Routes>
         </main>
       </Router>

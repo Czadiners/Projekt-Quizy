@@ -90,7 +90,7 @@ function QuizCard({ quiz, onDelete }) {
 
       <div className="quiz-card-footer">
         <span className="quiz-card-count">
-          {quiz.questions?.length ?? 0} pytań
+          liczba pytań: {quiz.questions?.length ?? 0}
         </span>
       </div>
     </div>

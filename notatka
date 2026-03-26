@@ -1,15 +1,21 @@
+
+
+dokonczayc tworzenie quizu ->dopasowywanie w formie przesuwania bloczkow albo cos i ustawianie w danej kolejnosci tez jako przesowanie bloczkow
+
+
+system punktacji punkty przy pytaniach ->po zakonczonym quizie analiza wynikow itd -->
 przy pytaniach w ktorych da sie sztywno okreslic prawidlowe odpowiedzi czyli obecnie wszystkie rodzaje oprocz pytania z wlasna odpowiedzia. czyli normalnie przy pytaniu dodajmy wartosc punktowa ktora da sie zmienic a domyslnie bedzie 1 punkt za pytanie
 
 
-claude sie wywalil w czwartek koncze pozdro z fartem i ten tego tam centralnie (prompt napisany w czacie)
 
-dokonczayc tworzenie quizu ->dopasowywanie w formie przesuwania bloczkow albo cos i ustawianie w danej kolejnosci tez jako przesowanie bloczkow
-jezeli doda sie pytanie jakies i doda sie kolejne a nastepnie chce sie wrocic do wczesniejszego to nie ma przycisku do przejscia dalej
-punkty przy pytaniach
 zrobic ze nie da sie dodac nastepnego pytania gdy nie jest poprzednie dokonczone jakby
+
 styl strony
-zarzadzanie quizami
+
+zarzadzanie quizami -> edytowanie
+
 obsługa błędów -> zamiast alert na stronie bo to wygląda szpetnie cos innego wykoimbinowac
+
 możliwość grania normalnie w te quizy bez pobierania niczego i bez hostingu?
 
-pokazuje sie ciagle ten błąd nie wazne czy wchodzi sie do zarzadzania quizow czy gdzies indziej. kolejna rzecz to na poczatku gdy wlacza sie strona jest sie ciagle jako zalogowany a tak nie powinno byc. dodaj jeszcze zeby w side bar w jakis ładny i stylowy sposob bylo pokazywane jaki aktualnie uzytkownik jest zalogowany.
+dodaj jeszcze zeby w side bar w jakis ładny i stylowy sposob bylo pokazywane jaki aktualnie uzytkownik jest zalogowany.

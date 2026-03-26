@@ -1,0 +1,21 @@
+
+
+dokonczayc tworzenie quizu ->dopasowywanie w formie przesuwania bloczkow albo cos i ustawianie w danej kolejnosci tez jako przesowanie bloczkow
+
+
+system punktacji punkty przy pytaniach ->po zakonczonym quizie analiza wynikow itd -->
+przy pytaniach w ktorych da sie sztywno okreslic prawidlowe odpowiedzi czyli obecnie wszystkie rodzaje oprocz pytania z wlasna odpowiedzia. czyli normalnie przy pytaniu dodajmy wartosc punktowa ktora da sie zmienic a domyslnie bedzie 1 punkt za pytanie
+
+
+
+zrobic ze nie da sie dodac nastepnego pytania gdy nie jest poprzednie dokonczone jakby
+
+styl strony
+
+zarzadzanie quizami -> edytowanie
+
+obsługa błędów -> zamiast alert na stronie bo to wygląda szpetnie cos innego wykoimbinowac
+
+możliwość grania normalnie w te quizy bez pobierania niczego i bez hostingu?
+
+dodaj jeszcze zeby w side bar w jakis ładny i stylowy sposob bylo pokazywane jaki aktualnie uzytkownik jest zalogowany.

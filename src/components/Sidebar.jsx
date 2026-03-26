@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import {auth} from "../components/Firebase";
 
 function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
@@ -10,7 +10,7 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
     try {
       await signOut(auth);
       setIsLoggedIn(false);
-      console.log("Wylogowano pomyślnie");
+      toggleSidebar();
     } catch (error) {
       alert("Błąd podczas wylogowywania: " + error.message);
     }
@@ -18,8 +18,6 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
 
   return (
     <div className={`sidebar ${isOpen ? "open" : ""}`}>
-      <Link to="/">maciej</Link>
-
       <button className="close-btn" onClick={toggleSidebar}>
         ✕
       </button>
@@ -37,19 +35,30 @@ function Sidebar({ isOpen, toggleSidebar, isLoggedIn, setIsLoggedIn }) {
           <div className="profile-menu">
             {!isLoggedIn ? (
               <>
-                <Link to="/login">Zaloguj</Link>
-                <Link to= "/register">Utwórz konto</Link>
+                <Link to="/login" onClick={toggleSidebar}>Zaloguj się</Link>
+                <Link to="/register" onClick={toggleSidebar}>Utwórz konto</Link>
               </>
             ) : (
-              <button onClick={handleLogout}>Wyloguj</button>
+              <button onClick={handleLogout}>Wyloguj się</button>
             )}
           </div>
         )}
       </div>
 
       <ul>
-        <li>Utwórz quiz</li>
-        <li>Manage your quiz</li>
+        <li>
+          <Link to="/" onClick={toggleSidebar}>Strona główna</Link>
+        </li>
+        {isLoggedIn && (
+          <>
+            <li>
+              <Link to="/create" onClick={toggleSidebar}>Utwórz quiz</Link>
+            </li>
+            <li>
+              <Link to="/manage" onClick={toggleSidebar}>Zarządzaj quizami</Link>
+            </li>
+          </>
+        )}
       </ul>
     </div>
   );

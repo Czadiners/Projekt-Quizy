@@ -10,12 +10,14 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
+import { createSession } from "../components/sessionUtils";
 
 const MAX_DESC_LENGTH = 120;
 
 function QuizCard({ quiz, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [launching, setLaunching] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
@@ -24,7 +26,6 @@ function QuizCard({ quiz, onDelete }) {
     ? quiz.description
     : quiz.description.slice(0, MAX_DESC_LENGTH) + "...";
 
-  // Zamknij menu po kliknięciu poza nim
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -37,11 +38,20 @@ function QuizCard({ quiz, onDelete }) {
 
   const handleDelete = async () => {
     setMenuOpen(false);
-    const confirmed = window.confirm(
-      `Czy na pewno chcesz usunąć quiz "${quiz.title}"? Tej operacji nie można cofnąć.`
-    );
-    if (!confirmed) return;
+    if (!window.confirm(`Czy na pewno chcesz usunąć quiz "${quiz.title}"? Tej operacji nie można cofnąć.`)) return;
     await onDelete(quiz.id);
+  };
+
+  const handleLaunch = async () => {
+    setMenuOpen(false);
+    setLaunching(true);
+    try {
+      const { sessionId } = await createSession(quiz.id);
+      navigate(`/host/${sessionId}`);
+    } catch (err) {
+      alert("Błąd podczas uruchamiania sesji: " + err.message);
+      setLaunching(false);
+    }
   };
 
   return (
@@ -49,23 +59,19 @@ function QuizCard({ quiz, onDelete }) {
       <div className="quiz-card-header">
         <h3 className="quiz-card-title">{quiz.title}</h3>
         <div className="quiz-card-menu" ref={menuRef}>
-          <button
-            className="menu-btn"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            title="Opcje"
-          >
+          <button className="menu-btn" onClick={() => setMenuOpen((prev) => !prev)} title="Opcje">
             ⚙
           </button>
           {menuOpen && (
             <div className="menu-dropdown">
               <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
-                ✏️ Edytuj quiz
+                Edytuj quiz
               </button>
-              <button onClick={() => { setMenuOpen(false); alert("Funkcja uruchamiania quizu będzie dostępna wkrótce."); }}>
-                ▶️ Uruchom quiz
+              <button onClick={handleLaunch} disabled={launching}>
+                {launching ? "Uruchamianie..." : "Uruchom sesję"}
               </button>
               <button className="delete-option" onClick={handleDelete}>
-                🗑️ Usuń quiz
+                Usuń quiz
               </button>
             </div>
           )}
@@ -76,11 +82,8 @@ function QuizCard({ quiz, onDelete }) {
         <div className="quiz-card-desc">
           <p>{displayDesc}</p>
           {isLong && (
-            <button
-              className="expand-btn"
-              onClick={() => setExpanded((prev) => !prev)}
-            >
-              {expanded ? "▲ Zwiń" : "▼ Rozwiń"}
+            <button className="expand-btn" onClick={() => setExpanded((prev) => !prev)}>
+              {expanded ? "Zwiń" : "Rozwiń"}
             </button>
           )}
         </div>
@@ -89,9 +92,7 @@ function QuizCard({ quiz, onDelete }) {
       )}
 
       <div className="quiz-card-footer">
-        <span className="quiz-card-count">
-          liczba pytań: {quiz.questions?.length ?? 0}
-        </span>
+        <span className="quiz-card-count">{quiz.questions?.length ?? 0} pytań</span>
       </div>
     </div>
   );
@@ -110,41 +111,36 @@ function ManageQuizzesPage() {
         orderBy("createdAt", "desc")
       );
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setQuizzes(data);
+      setQuizzes(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     } catch (err) {
-      alert("Błąd podczas pobierania quizów: " + err.message);
+      console.error("Błąd podczas pobierania quizów:", err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchQuizzes();
-  }, []);
+  useEffect(() => { fetchQuizzes(); }, []);
 
   const handleDelete = async (quizId) => {
     try {
       await deleteDoc(doc(db, "quizzes", quizId));
       setQuizzes((prev) => prev.filter((q) => q.id !== quizId));
     } catch (err) {
-      alert("Błąd podczas usuwania quizu: " + err.message);
+      console.error("Błąd podczas usuwania quizu:", err.message);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="manage-page">
-        <p className="loading-text">Ładowanie quizów...</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="manage-page">
+      <p className="loading-text">Ładowanie quizów...</p>
+    </div>
+  );
 
   return (
     <div className="manage-page">
       <div className="manage-header">
         <h2>Moje quizy</h2>
-        <Link to="/create" className="create-link-btn">+ Utwórz nowy quiz</Link>
+        <Link to="/create" className="save-btn">Utwórz nowy quiz</Link>
       </div>
 
       {quizzes.length === 0 ? (
@@ -152,7 +148,9 @@ function ManageQuizzesPage() {
           <div className="empty-icon">📝</div>
           <h3>Nie masz jeszcze żadnych quizów</h3>
           <p>Stwórz swój pierwszy quiz i podziel się wiedzą!</p>
-          <Link to="/create" className="save-btn">+ Utwórz pierwszy quiz</Link>
+          <Link to="/create" className="save-btn" style={{ marginTop: "8px" }}>
+            Utwórz pierwszy quiz
+          </Link>
         </div>
       ) : (
         <div className="quiz-grid">

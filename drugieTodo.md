@@ -4,7 +4,6 @@
 
 ## Naprawione
 - [x] Tworzenie quizu – przycisk "Dalej" na kroku z opisem nie działał
-- [x] Alerty zastąpione inline komunikatami (form-error) w CreateQuizPage
 
 ---
 
@@ -19,7 +18,7 @@
 - Pytania jedno po drugim
 - Obsługa typów: single, multiple, truefalse, text
 - Przycisk "Dalej" / "Zakończ"
-- Zapis odpowiedzi uczestnika lokalnie (stan)
+- Zapis odpowiedzi uczestnika w firebase
 
 ### 2. Wyniki po zakończeniu quizu `/results/:attemptId`
 - Podsumowanie: zdobyte punkty / max punktów / procent

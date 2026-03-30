@@ -201,7 +201,7 @@ function CreateQuizPage() {
                   value={answer} onChange={(e) => updateAnswer(aIndex, e.target.value)} />
               </div>
             ))}
-            <p className="correct-hint">Zaznacz radio przy poprawnej odpowiedzi.</p>
+            <p className="correct-hint">Kliknij na kółko przy poprawnej odpowiedzi.</p>
           </div>
         )}
 

@@ -52,13 +52,14 @@ function PointsInput({ value, onChange, disabled }) {
 }
 
 function CreateQuizPage() {
-  const [step, setStep] = useState("title");
+  const [step, setStep] = useState("title"); // title | description | question
+  const [addingType, setAddingType] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [addingType, setAddingType] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -81,9 +82,11 @@ function CreateQuizPage() {
     setCurrentQuestionIndex(newQuestions.length - 1);
     setAddingType(false);
     setStep("question");
+    setError("");
   };
 
   const goToPrevQuestion = () => {
+    setError("");
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     } else {
@@ -96,12 +99,13 @@ function CreateQuizPage() {
     .reduce((sum, q) => sum + (q.points || 1), 0);
 
   const handleSave = async () => {
-    if (questions.length === 0) { alert("Dodaj przynajmniej jedno pytanie."); return; }
+    if (questions.length === 0) { setError("Dodaj przynajmniej jedno pytanie."); return; }
     for (let i = 0; i < questions.length; i++) {
       const err = validateQuestion(questions[i], i);
-      if (err) { alert(err); return; }
+      if (err) { setError(err); return; }
     }
     setSaving(true);
+    setError("");
     try {
       await addDoc(collection(db, "quizzes"), {
         title, description,
@@ -109,34 +113,60 @@ function CreateQuizPage() {
         createdAt: serverTimestamp(),
         questions,
       });
-      alert("Quiz został zapisany!");
       navigate("/manage");
     } catch (err) {
-      alert("Błąd podczas zapisywania: " + err.message);
+      setError("Błąd podczas zapisywania: " + err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  //Tytuł
+  // --- WYBÓR TYPU — sprawdzamy PRZED step ---
+  if (addingType) return (
+    <div className="create-quiz-page">
+      <div className="wizard-card">
+        <h2>Rodzaj pytania</h2>
+        <p className="wizard-subtitle">Wybierz typ pytania, które chcesz dodać</p>
+        <div className="type-select-list">
+          {Object.entries(typeLabels).map(([type, label]) => (
+            <button key={type} className="type-select-btn" onClick={() => handleTypeSelect(type)}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="wizard-actions" style={{ marginTop: "20px" }}>
+          <button className="back-btn" onClick={() => {
+            setAddingType(false);
+            if (questions.length === 0) setStep("description");
+          }}>
+            Anuluj
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- KROK 1: Tytuł ---
   if (step === "title") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
         <h2>Nowy quiz</h2>
         <p className="wizard-subtitle">Jak będzie się nazywał Twój quiz?</p>
         <input type="text" placeholder="Tytuł quizu" value={title}
-          onChange={(e) => setTitle(e.target.value)} autoFocus />
+          onChange={(e) => { setTitle(e.target.value); setError(""); }} autoFocus />
+        {error && <p className="form-error">{error}</p>}
         <div className="wizard-actions">
           <button className="save-btn" onClick={() => {
-            if (!title.trim()) { alert("Podaj tytuł quizu."); return; }
+            if (!title.trim()) { setError("Podaj tytuł quizu."); return; }
+            setError("");
             setStep("description");
-          }}>Dalej →</button>
+          }}>Dalej</button>
         </div>
       </div>
     </div>
   );
 
-  //Opis
+  // --- KROK 2: Opis ---
   if (step === "description") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -145,38 +175,14 @@ function CreateQuizPage() {
         <textarea placeholder="Opis quizu..." value={description}
           onChange={(e) => setDescription(e.target.value)} autoFocus />
         <div className="wizard-actions">
-          <button className="back-btn" onClick={() => setStep("title")}>← Wstecz</button>
-          <button className="save-btn" onClick={() => setAddingType(true)}>Dalej →</button>
+          <button className="back-btn" onClick={() => setStep("title")}>Wstecz</button>
+          <button className="save-btn" onClick={() => setAddingType(true)}>Dalej</button>
         </div>
       </div>
     </div>
   );
 
-  // WYBÓR TYPU
-  if (addingType) return (
-    <div className="create-quiz-page">
-      <div className="wizard-card">
-        <h2>Jakie pytanie chcesz dodać?</h2>
-        <p className="wizard-subtitle">Wybierz rodzaj pytania</p>
-        <div className="type-select-list">
-          {Object.entries(typeLabels).map(([type, label]) => (
-            <button key={type} className="type-select-btn" onClick={() => handleTypeSelect(type)}>
-              {label}
-            </button>
-          ))}
-        </div>
-        {questions.length > 0 && (
-          <div className="wizard-actions" style={{ marginTop: "20px" }}>
-            <button className="back-btn" onClick={() => { setAddingType(false); setStep("question"); }}>
-              ← Anuluj
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  // EDYCJA PYTANIA
+  // --- KROK 3+: Pytanie ---
   if (step === "question" && currentQuestion) return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -189,7 +195,7 @@ function CreateQuizPage() {
         </div>
 
         <input type="text" placeholder="Treść pytania" value={currentQuestion.question}
-          onChange={(e) => updateQuestion("question", e.target.value)} autoFocus />
+          onChange={(e) => { updateQuestion("question", e.target.value); setError(""); }} autoFocus />
 
         {currentQuestion.type === "single" && (
           <div className="answers-list">
@@ -201,7 +207,7 @@ function CreateQuizPage() {
                   value={answer} onChange={(e) => updateAnswer(aIndex, e.target.value)} />
               </div>
             ))}
-            <p className="correct-hint">Kliknij na kółko przy poprawnej odpowiedzi.</p>
+            <p className="correct-hint">Zaznacz poprawną odpowiedź.</p>
           </div>
         )}
 
@@ -219,7 +225,7 @@ function CreateQuizPage() {
                   value={answer} onChange={(e) => updateAnswer(aIndex, e.target.value)} />
               </div>
             ))}
-            <p className="correct-hint">Zaznacz checkboxy przy poprawnych odpowiedziach.</p>
+            <p className="correct-hint">Zaznacz wszystkie poprawne odpowiedzi.</p>
           </div>
         )}
 
@@ -235,13 +241,12 @@ function CreateQuizPage() {
                 onChange={() => updateQuestion("correct", false)} />
               <span>Fałsz</span>
             </div>
-            <p className="correct-hint">Zaznacz poprawną odpowiedź.</p>
           </div>
         )}
 
         {currentQuestion.type === "text" && (
           <p className="correct-hint" style={{ fontSize: "14px", color: "#555" }}>
-            Uczestnik wpisze własną odpowiedź. Ty przyznasz punkt ręcznie po zakończeniu quizu.
+            Uczestnik wpisze własną odpowiedź tekstową. Ty przyznasz punkty ręcznie po zakończeniu quizu.
           </p>
         )}
 
@@ -251,15 +256,15 @@ function CreateQuizPage() {
           disabled={currentQuestion.type === "text"}
         />
 
-        {questions.filter(q => q.type !== "text").length > 0 && (
-          <p className="points-total">
-            Łączna pula punktów (bez ręcznych): <strong>{totalPoints} pkt</strong>
-          </p>
+        {totalPoints > 0 && (
+          <p className="points-total">Łączna pula punktów (automatycznych): <strong>{totalPoints} pkt</strong></p>
         )}
 
+        {error && <p className="form-error">{error}</p>}
+
         <div className="wizard-actions">
-          <button className="back-btn" onClick={goToPrevQuestion}>← Wstecz</button>
-          <button className="add-question-btn" onClick={() => setAddingType(true)}>+ Nowe pytanie</button>
+          <button className="back-btn" onClick={goToPrevQuestion}>Wstecz</button>
+          <button className="add-question-btn" onClick={() => setAddingType(true)}>Dodaj pytanie</button>
           <button className="save-btn" onClick={handleSave} disabled={saving}>
             {saving ? "Zapisywanie..." : "Zapisz quiz"}
           </button>

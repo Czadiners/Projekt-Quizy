@@ -1,6 +1,5 @@
 sprawdzic ile mamy zrobione z podstawowych funkcji i czego brakuje(wszystko jest w pdf od ernest)
 
-dokonczayc tworzenie quizu ->dopasowywanie w formie przesuwania bloczkow albo cos i ustawianie w danej kolejnosci tez jako przesowanie bloczkow
 
 
 system punktacji punkty przy pytaniach ->po zakonczonym quizie analiza wynikow itd -->
@@ -9,12 +8,11 @@ przy pytaniach w ktorych da sie sztywno okreslic prawidlowe odpowiedzi czyli obe
 
 
 
-styl strony
+styl strony (zeby jeszcze jakis fuckass emotek nie bylo)
 
-zarzadzanie quizami -> edytowanie
+
 
 obsługa błędów -> zamiast alert na stronie bo to wygląda szpetnie cos innego wykoimbinowac
 
 możliwość grania normalnie w te quizy bez pobierania niczego i bez hostingu?
 
-dodaj jeszcze zeby w side bar w jakis ładny i stylowy sposob bylo pokazywane jaki aktualnie uzytkownik jest zalogowany.

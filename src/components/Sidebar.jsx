@@ -17,7 +17,7 @@ function Sidebar({ isOpen, toggleSidebar, user, setUser }) {
   };
 
   const getInitial = () => {
-    if (!user) return "?";
+    if (!user) return "👤";
     if (user.displayName) return user.displayName[0].toUpperCase();
     if (user.email) return user.email[0].toUpperCase();
     return "?";
@@ -33,16 +33,13 @@ function Sidebar({ isOpen, toggleSidebar, user, setUser }) {
           style={{ background: user ? "#4caf50" : "#888" }}
           onClick={() => setProfileOpen(!profileOpen)}
         >
-          {user ? getInitial() : "👤"}
+          {getInitial()}
         </div>
 
-        {user && (
-          <div className="profile-email">{user.email}</div>
-        )}
-
-        {!user && (
-          <div className="profile-guest">Niezalogowany</div>
-        )}
+        {user
+          ? <div className="profile-email">{user.email}</div>
+          : <div className="profile-guest">Niezalogowany</div>
+        }
 
         {profileOpen && (
           <div className="profile-menu">

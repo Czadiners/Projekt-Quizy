@@ -118,7 +118,7 @@ function CreateQuizPage() {
     }
   };
 
-  // KROK 1: Tytuł
+  //Tytuł
   if (step === "title") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -136,7 +136,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  // KROK 2: Opis
+  //Opis
   if (step === "description") return (
     <div className="create-quiz-page">
       <div className="wizard-card">

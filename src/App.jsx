@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import MainPage from "./pages/MainPage";
@@ -6,31 +6,36 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import CreateQuizPage from "./pages/CreateQuizPage";
 import ManageQuizzesPage from "./pages/ManageQuizzesPage";
+import EditQuizPage from "./pages/EditQuizPage";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-import { useEffect } from "react";
 import { auth } from "./components/Firebase";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser ?? null);
       setIsLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  if (isLoading) return <div>Ładowanie...</div>;
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="app-loading-spinner" />
+        <p>Ładowanie...</p>
+      </div>
+    );
+  }
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-  const ProtectedRoute = ({ children }) =>
-    isLoggedIn ? children : <Navigate to="/login" />;
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+  const ProtectedRoute = ({ children }) => user ? children : <Navigate to="/login" />;
 
   return (
     <div className="app">
@@ -39,8 +44,8 @@ function App() {
         <Sidebar
           isOpen={sidebarOpen}
           toggleSidebar={toggleSidebar}
-          isLoggedIn={isLoggedIn}
-          setIsLoggedIn={setIsLoggedIn}
+          user={user}
+          setUser={setUser}
         />
         <main className="main-content">
           <Routes>
@@ -49,6 +54,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/create" element={<ProtectedRoute><CreateQuizPage /></ProtectedRoute>} />
             <Route path="/manage" element={<ProtectedRoute><ManageQuizzesPage /></ProtectedRoute>} />
+            <Route path="/edit/:quizId" element={<ProtectedRoute><EditQuizPage /></ProtectedRoute>} />
           </Routes>
         </main>
       </Router>

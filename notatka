@@ -1,21 +1,55 @@
-sprawdzic ile mamy zrobione z podstawowych funkcji i czego brakuje(wszystko jest w pdf od ernest)
-
-dokonczayc tworzenie quizu ->dopasowywanie w formie przesuwania bloczkow albo cos i ustawianie w danej kolejnosci tez jako przesowanie bloczkow
 
 
+
+w trakcie pracy:
 system punktacji punkty przy pytaniach ->po zakonczonym quizie analiza wynikow itd -->
 przy pytaniach w ktorych da sie sztywno okreslic prawidlowe odpowiedzi czyli obecnie wszystkie rodzaje oprocz pytania z wlasna odpowiedzia. czyli normalnie przy pytaniu dodajmy wartosc punktowa ktora da sie zmienic a domyslnie bedzie 1 punkt za pytanie
 
 
 
-zrobic ze nie da sie dodac nastepnego pytania gdy nie jest poprzednie dokonczone jakby
 
-styl strony
+do zrobienia:
+sprawdzic ile mamy zrobione z podstawowych funkcji i czego brakuje(wszystko jest w pdf od ernest) 
 
-zarzadzanie quizami -> edytowanie
+styl strony (zeby jeszcze jakis fuckass emotek nie bylo)
+
 
 obsługa błędów -> zamiast alert na stronie bo to wygląda szpetnie cos innego wykoimbinowac
 
 możliwość grania normalnie w te quizy bez pobierania niczego i bez hostingu?
 
-dodaj jeszcze zeby w side bar w jakis ładny i stylowy sposob bylo pokazywane jaki aktualnie uzytkownik jest zalogowany.
+
+w zaloguj przejście do rejestracji
+podgląd hasła i powtórzenie hasła
+komunikat co jest nie tak z hasłem
+
+rozjebalo sie tworzenie quizu (wpisuje sie nazwe normalnie -> przycisk dalej -> wpisuje sie opis i przycisk dalej nie dziala)
+
+
+Co już mamy ✅
+
+CRUD quizów (tworzenie, edycja, usuwanie)
+Typy pytań: jednokrotny wybór, wielokrotny wybór, prawda/fałsz, własna odpowiedź
+Walidacja (min. 1 pytanie, puste pola)
+React Router z widokami
+Firebase (auth + Firestore)
+useState/useEffect + podział na komponenty
+
+Czego jeszcze nie mamy ❌
+Z wymagań minimalnych (obowiązkowych):
+
+❌ Rozwiązywanie quizu — strona gdzie uczestnik faktycznie rozwiązuje quiz
+❌ Wynik po zakończeniu — punkty, procent
+❌ Historia prób — kto, kiedy, jaki wynik
+
+Z wymagań technicznych:
+
+❌ Widok rozwiązywania quizu (4. widok z wymaganych 4)
+❌ Widok wyników
+
+Z rozszerzeń (opcjonalne, ale warto):
+
+❌ Timer i ograniczenie czasu
+❌ Losowanie pytań z puli
+❌ Statystyki pytań (które najtrudniejsze)
+❌ Eksport wyników do CSV

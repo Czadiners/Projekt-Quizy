@@ -5,11 +5,11 @@ import { auth, db } from "../components/Firebase";
 
 const emptyQuestion = (type) => {
   switch (type) {
-    case "single":   return { type, question: "", answers: ["", "", "", ""], correctIndex: 0 };
-    case "multiple": return { type, question: "", answers: ["", "", "", ""], correctIndexes: [] };
-    case "text":     return { type, question: "" };
-    case "truefalse":return { type, question: "", correct: true };
-    default:         return { type: "single", question: "", answers: ["", "", "", ""], correctIndex: 0 };
+    case "single":    return { type, question: "", answers: ["", "", "", ""], correctIndex: 0, points: 1 };
+    case "multiple":  return { type, question: "", answers: ["", "", "", ""], correctIndexes: [], points: 1 };
+    case "text":      return { type, question: "", points: 0 };
+    case "truefalse": return { type, question: "", correct: true, points: 1 };
+    default:          return { type: "single", question: "", answers: ["", "", "", ""], correctIndex: 0, points: 1 };
   }
 };
 
@@ -30,6 +30,26 @@ const validateQuestion = (q, index) => {
   }
   return null;
 };
+
+function PointsInput({ value, onChange, disabled }) {
+  return (
+    <div className="points-row">
+      <label className="points-label">Punkty za pytanie:</label>
+      {disabled ? (
+        <span className="points-manual-info">przyznawane ręcznie</span>
+      ) : (
+        <input
+          type="number"
+          min="1"
+          max="100"
+          className="points-input"
+          value={value}
+          onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 1))}
+        />
+      )}
+    </div>
+  );
+}
 
 function CreateQuizPage() {
   const [step, setStep] = useState("title");
@@ -70,6 +90,10 @@ function CreateQuizPage() {
       setStep("description");
     }
   };
+
+  const totalPoints = questions
+    .filter(q => q.type !== "text")
+    .reduce((sum, q) => sum + (q.points || 1), 0);
 
   const handleSave = async () => {
     if (questions.length === 0) { alert("Dodaj przynajmniej jedno pytanie."); return; }
@@ -218,6 +242,18 @@ function CreateQuizPage() {
         {currentQuestion.type === "text" && (
           <p className="correct-hint" style={{ fontSize: "14px", color: "#555" }}>
             Uczestnik wpisze własną odpowiedź. Ty przyznasz punkt ręcznie po zakończeniu quizu.
+          </p>
+        )}
+
+        <PointsInput
+          value={currentQuestion.points}
+          onChange={(val) => updateQuestion("points", val)}
+          disabled={currentQuestion.type === "text"}
+        />
+
+        {questions.filter(q => q.type !== "text").length > 0 && (
+          <p className="points-total">
+            Łączna pula punktów (bez ręcznych): <strong>{totalPoints} pkt</strong>
           </p>
         )}
 

@@ -12,11 +12,11 @@ const typeLabels = {
 
 const emptyQuestion = (type) => {
   switch (type) {
-    case "single":    return { type, question: "", answers: ["", "", "", ""], correctIndex: 0 };
-    case "multiple":  return { type, question: "", answers: ["", "", "", ""], correctIndexes: [] };
-    case "text":      return { type, question: "" };
-    case "truefalse": return { type, question: "", correct: true };
-    default:          return { type: "single", question: "", answers: ["", "", "", ""], correctIndex: 0 };
+    case "single":    return { type, question: "", answers: ["", "", "", ""], correctIndex: 0, points: 1 };
+    case "multiple":  return { type, question: "", answers: ["", "", "", ""], correctIndexes: [], points: 1 };
+    case "text":      return { type, question: "", points: 0 };
+    case "truefalse": return { type, question: "", correct: true, points: 1 };
+    default:          return { type: "single", question: "", answers: ["", "", "", ""], correctIndex: 0, points: 1 };
   }
 };
 
@@ -30,6 +30,26 @@ const validateQuestion = (q, index) => {
   }
   return null;
 };
+
+function PointsInput({ value, onChange, disabled }) {
+  return (
+    <div className="points-row">
+      <label className="points-label">Punkty za pytanie:</label>
+      {disabled ? (
+        <span className="points-manual-info">przyznawane ręcznie</span>
+      ) : (
+        <input
+          type="number"
+          min="1"
+          max="100"
+          className="points-input"
+          value={value}
+          onChange={(e) => onChange(Math.max(1, parseInt(e.target.value) || 1))}
+        />
+      )}
+    </div>
+  );
+}
 
 function QuestionEditor({ question, index, questions, setQuestions }) {
   const update = (field, value) => {
@@ -102,6 +122,12 @@ function QuestionEditor({ question, index, questions, setQuestions }) {
           Uczestnik wpisze własną odpowiedź. Ty przyznasz punkt ręcznie po zakończeniu quizu.
         </p>
       )}
+
+      <PointsInput
+        value={question.points ?? (question.type === "text" ? 0 : 1)}
+        onChange={(val) => update("points", val)}
+        disabled={question.type === "text"}
+      />
     </div>
   );
 }
@@ -129,7 +155,12 @@ function EditQuizPage() {
         if (data.authorId !== auth.currentUser.uid) { alert("Brak dostępu."); navigate("/manage"); return; }
         setTitle(data.title);
         setDescription(data.description || "");
-        setQuestions(data.questions || []);
+        // zapewnij że każde pytanie ma pole points
+        const qs = (data.questions || []).map(q => ({
+          ...q,
+          points: q.points ?? (q.type === "text" ? 0 : 1),
+        }));
+        setQuestions(qs);
       } catch (err) {
         alert("Błąd podczas wczytywania: " + err.message);
       } finally {
@@ -138,6 +169,10 @@ function EditQuizPage() {
     };
     fetchQuiz();
   }, [quizId, navigate]);
+
+  const totalPoints = questions
+    .filter(q => q.type !== "text")
+    .reduce((sum, q) => sum + (q.points || 1), 0);
 
   const handleSave = async () => {
     if (!title.trim()) { alert("Podaj tytuł quizu."); return; }
@@ -181,7 +216,6 @@ function EditQuizPage() {
 
   return (
     <div className="edit-page">
-
       {/* LEWY PANEL */}
       <aside className="edit-sidebar">
         <div className="edit-sidebar-header">
@@ -210,10 +244,19 @@ function EditQuizPage() {
                 <span className="edit-question-item-text">
                   {q.question || <em>Brak treści</em>}
                 </span>
+                <span className="edit-question-item-points">
+                  {q.type === "text" ? "ręcznie" : `${q.points ?? 1} pkt`}
+                </span>
               </div>
             </div>
           ))}
         </div>
+
+        {totalPoints > 0 && (
+          <div className="edit-sidebar-total">
+            Łącznie: <strong>{totalPoints} pkt</strong>
+          </div>
+        )}
       </aside>
 
       {/* PRAWA STRONA */}
@@ -226,7 +269,6 @@ function EditQuizPage() {
         </div>
 
         <div className="edit-main">
-
           {/* WYBÓR TYPU */}
           {addingType && (
             <div className="wizard-card">

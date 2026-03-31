@@ -20,6 +20,15 @@
 - Przycisk "Dalej" / "Zakończ"
 - Zapis odpowiedzi uczestnika w firebase
 
+
+
+poprawki:
+zrobic tak zeby uzytkownik wchodzil na rozwiazywanie quizu nie po localhost (lokalnie) jak sie da
+poprawic to jak host usunie gracza z quizu to zeby u niego na stronie pokazywalo sie ze nie jest juz w tym quizie i zeby faktycznie sie tak dzialo i ze wraca na strone /join
+gdy zakonczy uzytkownik quiz to nie powinien miec opcji zeby oceniac itp pytania (takie rzeczy tylko host a osoba jako gracz widzi tylko wyniki i moze miec tylko wstepny podglad z tego testu, w miejscach gdzie sa pytania z wlasna odpoweidzia bedzie wyswietlane to pytanie ale z informacja ze tworca quizu oceni to pozniej czy cos) do tego gdy quiz sie skonczy i tworca ocenia test a byly tam punkty do przyznania to liczba tych punktow powinna byc dodana do ogolnej - maksymalnej liczby- punktow do zdobycia i dodana ilosc punktow tyle ile gracz dany uzyskal np. pytanie otwarte jest a maksymalna liczba punktow w tescie ooglnie to 8 a tworca potem przyzna 10 punktow to maksymalna liczba powinna sie zmienic na 18 i liczba punktow ktore zdobyl gracz powinna sie zwiekszyc o liczbe punktow ktore dostal za pytanei otwarte.(img jest zapisany tutaj)
+punkt 2 i 3 z todo 
+
+
 ### 2. Wyniki po zakończeniu quizu `/results/:attemptId`
 - Podsumowanie: zdobyte punkty / max punktów / procent
 - Lista pytań z zaznaczeniem co było poprawne/błędne

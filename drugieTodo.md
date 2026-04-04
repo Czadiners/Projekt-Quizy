@@ -21,7 +21,7 @@
 - Zapis odpowiedzi uczestnika w firebase
 
 
-
+w większości nie aktualne punkt 2 i 3 prawie zrobiony, blad ten sam ktory opisany jest pod punktem 3
 poprawki:
 zrobic tak zeby uzytkownik wchodzil na rozwiazywanie quizu nie po localhost (lokalnie) jak sie da
 poprawic to jak host usunie gracza z quizu to zeby u niego na stronie pokazywalo sie ze nie jest juz w tym quizie i zeby faktycznie sie tak dzialo i ze wraca na strone /join
@@ -39,7 +39,7 @@ gdy zakonczy uzytkownik quiz to nie powinien miec opcji zeby oceniac itp pytania
 - Ręczne przyznawanie punktów za pytania tekstowe
 
 
-publiczne granie na firebase init hosting i firebase deploy, dalej problem z zadaniami tekstowymi do ręcznej oceny ze gracz moze je sam ocenic
+dobrze, zajmijmy sie tym publicznym dostępem ale jeszcze jedna kwestia do poprawki. Gdy gracz skończy quiz TO NIE MOŻE on mieć możliwości ocenienia pytań otwartych (na obrazku widać to że i tak może.) więc w jaki sposób możemy to naprawić?
 ---
 
 ## Do zrobienia – UI/UX

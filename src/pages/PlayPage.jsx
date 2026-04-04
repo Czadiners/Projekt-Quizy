@@ -5,7 +5,6 @@ import {
   onSnapshot,
   updateDoc,
   getDoc,
-  arrayUnion,
 } from "firebase/firestore";
 import { db } from "../components/Firebase";
 
@@ -18,12 +17,14 @@ function PlayPage() {
   const [session, setSession] = useState(null);
   const [quiz, setQuiz] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // { [questionIndex]: answer }
+  const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [waitingForStart, setWaitingForStart] = useState(true);
+  const [kicked, setKicked] = useState(false);
 
+  // Nasłuchuj sesji
   useEffect(() => {
     if (!playerId) { navigate("/join"); return; }
 
@@ -32,27 +33,41 @@ function PlayPage() {
       const data = snap.data();
       setSession({ id: snap.id, ...data });
 
+      if (data.status === "active" || data.status === "finished") {
+        setWaitingForStart(false);
+      }
+
       if (data.status === "finished" && !submitted) {
         navigate(`/results/${sessionId}?playerId=${playerId}`);
         return;
       }
 
-      if (data.status === "active" || data.status === "finished") {
-        setWaitingForStart(false);
-      }
-
       if (!quiz && data.quizId) {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
-        if (quizSnap.exists()) {
-          setQuiz({ id: quizSnap.id, ...quizSnap.data() });
-        }
+        if (quizSnap.exists()) setQuiz({ id: quizSnap.id, ...quizSnap.data() });
       }
 
       setLoading(false);
     });
 
     return () => unsubSession();
-  }, [sessionId, playerId, navigate, submitted]);
+  }, [sessionId, playerId, navigate, submitted, quiz]);
+
+  // Nasłuchuj czy gracz nie został wyrzucony
+  useEffect(() => {
+    if (!playerId) return;
+
+    const unsubPlayer = onSnapshot(
+      doc(db, "sessions", sessionId, "players", playerId),
+      (snap) => {
+        if (!snap.exists()) {
+          setKicked(true);
+        }
+      }
+    );
+
+    return () => unsubPlayer();
+  }, [sessionId, playerId]);
 
   const currentQuestion = quiz?.questions?.[currentIndex];
   const totalQuestions = quiz?.questions?.length ?? 0;
@@ -60,7 +75,6 @@ function PlayPage() {
   const handleAnswer = (value) => {
     if (submitted) return;
     setError("");
-
     if (currentQuestion.type === "multiple") {
       const prev = answers[currentIndex] ?? [];
       const next = prev.includes(value)
@@ -76,27 +90,28 @@ function PlayPage() {
     setAnswers({ ...answers, [currentIndex]: value });
   };
 
+  const isAnswered = () => {
+    const a = answers[currentIndex];
+    if (a === undefined || a === null) return false;
+    if (currentQuestion.type === "multiple") return (a).length > 0;
+    if (currentQuestion.type === "text") return a.trim() !== "";
+    return true;
+  };
+
   const handleNext = () => {
-    if (answers[currentIndex] === undefined || answers[currentIndex] === "") {
-      setError("Wybierz lub wpisz odpowiedź przed przejściem dalej.");
-      return;
-    }
+    if (!isAnswered()) { setError("Odpowiedz na pytanie przed przejściem dalej."); return; }
     setError("");
     setCurrentIndex(currentIndex + 1);
   };
 
   const handleFinish = async () => {
-    if (answers[currentIndex] === undefined || answers[currentIndex] === "") {
-      setError("Wybierz lub wpisz odpowiedź przed zakończeniem.");
-      return;
-    }
+    if (!isAnswered()) { setError("Odpowiedz na pytanie przed zakończeniem."); return; }
     setError("");
     setSubmitted(true);
 
-    // Oblicz punkty automatyczne
     let totalScore = 0;
     const answersArray = quiz.questions.map((q, i) => {
-      const userAnswer = answers[i];
+      const userAnswer = answers[i] ?? null;
       let correct = false;
       let earnedPoints = 0;
 
@@ -106,20 +121,20 @@ function PlayPage() {
       } else if (q.type === "multiple") {
         const userSet = new Set(userAnswer ?? []);
         const correctSet = new Set(q.correctIndexes ?? []);
-        correct = userSet.size === correctSet.size &&
-          [...userSet].every(v => correctSet.has(v));
+        correct = userSet.size === correctSet.size && [...userSet].every(v => correctSet.has(v));
         earnedPoints = correct ? (q.points ?? 1) : 0;
       } else if (q.type === "truefalse") {
         correct = userAnswer === q.correct;
         earnedPoints = correct ? (q.points ?? 1) : 0;
       } else if (q.type === "text") {
-        earnedPoints = 0; // ręcznie
+        correct = null;
+        earnedPoints = 0;
       }
 
       totalScore += earnedPoints;
       return {
         questionIndex: i,
-        answer: userAnswer ?? null,
+        answer: userAnswer,
         correct,
         earnedPoints,
         needsManualReview: q.type === "text",
@@ -140,9 +155,22 @@ function PlayPage() {
     }
   };
 
+  // Ekran wyrzucenia
+  if (kicked) return (
+    <div className="play-waiting">
+      <div className="play-waiting-card">
+        <div className="kicked-icon">✕</div>
+        <h2>Usunięto Cię z sesji</h2>
+        <p>Gospodarz usunął Cię z tego quizu.</p>
+        <button className="save-btn" style={{ marginTop: "20px" }} onClick={() => navigate("/join")}>
+          Wróć do dołączania
+        </button>
+      </div>
+    </div>
+  );
+
   if (loading) return <div className="manage-page"><p className="loading-text">Łączenie z sesją...</p></div>;
 
-  // Oczekiwanie na start
   if (waitingForStart) return (
     <div className="play-waiting">
       <div className="play-waiting-card">
@@ -164,7 +192,7 @@ function PlayPage() {
       <div className="play-progress-bar">
         <div
           className="play-progress-fill"
-          style={{ width: `${((currentIndex) / totalQuestions) * 100}%` }}
+          style={{ width: `${(currentIndex / totalQuestions) * 100}%` }}
         />
       </div>
 
@@ -178,7 +206,6 @@ function PlayPage() {
 
         <h2 className="play-question">{currentQuestion.question}</h2>
 
-        {/* SINGLE */}
         {currentQuestion.type === "single" && (
           <div className="play-answers">
             {currentQuestion.answers.map((answer, i) => (
@@ -194,7 +221,6 @@ function PlayPage() {
           </div>
         )}
 
-        {/* MULTIPLE */}
         {currentQuestion.type === "multiple" && (
           <div className="play-answers">
             <p className="correct-hint">Zaznacz wszystkie poprawne odpowiedzi.</p>
@@ -213,7 +239,6 @@ function PlayPage() {
           </div>
         )}
 
-        {/* TRUE/FALSE */}
         {currentQuestion.type === "truefalse" && (
           <div className="play-answers play-answers--tf">
             <button
@@ -231,7 +256,6 @@ function PlayPage() {
           </div>
         )}
 
-        {/* TEXT */}
         {currentQuestion.type === "text" && (
           <div className="play-text-answer">
             <textarea
@@ -240,7 +264,9 @@ function PlayPage() {
               onChange={(e) => handleTextAnswer(e.target.value)}
               rows={4}
             />
-            <p className="correct-hint">Ta odpowiedź zostanie oceniona ręcznie przez prowadzącego.</p>
+            <p className="correct-hint">
+              Ta odpowiedź zostanie oceniona ręcznie przez prowadzącego.
+            </p>
           </div>
         )}
 

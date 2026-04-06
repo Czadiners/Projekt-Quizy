@@ -38,8 +38,6 @@ gdy zakonczy uzytkownik quiz to nie powinien miec opcji zeby oceniac itp pytania
 - Zapis prób do Firestore (`attempts` kolekcja)
 - Ręczne przyznawanie punktów za pytania tekstowe
 
-
-dobrze, zajmijmy sie tym publicznym dostępem ale jeszcze jedna kwestia do poprawki. Gdy gracz skończy quiz TO NIE MOŻE on mieć możliwości ocenienia pytań otwartych (na obrazku widać to że i tak może.) więc w jaki sposób możemy to naprawić?
 ---
 
 ## Do zrobienia – UI/UX
@@ -59,6 +57,7 @@ dobrze, zajmijmy sie tym publicznym dostępem ale jeszcze jedna kwestia do popra
 - Powtórzenie hasła przy rejestracji
 - Podgląd hasła (przycisk pokaż/ukryj)
 - Czytelne komunikaty błędów Firebase (zamiast surowych kodów)
+- nie trzeba klikac przycisku login lub register tylko wciseniecie enter na klawiaturze tez zadziala
 
 ---
 

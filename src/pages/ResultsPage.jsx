@@ -3,15 +3,36 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, onSnapshot, collection, updateDoc } from "firebase/firestore";
 import { db } from "../components/Firebase";
 
+function Podium({ players }) {
+  if (players.length === 0) return null;
+  const top = players.slice(0, 3);
+  // Render order: 2nd, 1st, 3rd
+  const order = [top[1], top[0], top[2]].filter(Boolean);
+  const ranks = top[1] ? [2, 1, 3] : [1];
+
+  return (
+    <div className="results-podium">
+      {order.map((p, idx) => {
+        const rank = ranks[idx];
+        const medals = ["🥇", "🥈", "🥉"];
+        const rankClass = `podium-place podium-place--${rank}`;
+        return (
+          <div key={p.id} className={rankClass}>
+            <div className="podium-medal">{medals[rank - 1]}</div>
+            <div className="podium-nick">{p.nick}</div>
+            <div className="podium-score">{p.score ?? 0} pkt</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ResultsPage() {
   const { sessionId } = useParams();
   const [searchParams] = useSearchParams();
   const playerId = searchParams.get("playerId");
   const navigate = useNavigate();
-
-  // Kluczowa zasada: playerId w URL = widok gracza, brak = widok hosta
-  // rozroznianie czy gracz czy host
-  // w linku bedzie playerid jezeli to gracz i dzieki temu nie ma potem mozliwosci tych co host (wczesniej sie wywalalo)
   const isPlayerView = !!playerId;
 
   const [session, setSession] = useState(null);
@@ -27,27 +48,21 @@ function ResultsPage() {
       if (!sessionSnap.exists()) { navigate("/"); return; }
       const sessionData = { id: sessionSnap.id, ...sessionSnap.data() };
       setSession(sessionData);
-
       const quizSnap = await getDoc(doc(db, "quizzes", sessionData.quizId));
       if (quizSnap.exists()) setQuiz({ id: quizSnap.id, ...quizSnap.data() });
-
       setLoading(false);
     };
     fetchData();
 
-    const unsubPlayers = onSnapshot(
-      collection(db, "sessions", sessionId, "players"),
-      (snap) => {
-        const list = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => (b.score || 0) - (a.score || 0));
-        setPlayers(list);
-        if (playerId) {
-          const found = list.find((p) => p.id === playerId);
-          if (found) setPlayer(found);
-        }
+    const unsubPlayers = onSnapshot(collection(db, "sessions", sessionId, "players"), (snap) => {
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.score || 0) - (a.score || 0));
+      setPlayers(list);
+      if (playerId) {
+        const found = list.find((p) => p.id === playerId);
+        if (found) setPlayer(found);
       }
-    );
+    });
 
     return () => unsubPlayers();
   }, [sessionId, playerId, navigate]);
@@ -56,52 +71,40 @@ function ResultsPage() {
     const targetPlayer = players.find(p => p.id === pid);
     if (!targetPlayer) return;
     setSavingFor(`${pid}_${questionIndex}`);
-
     const updatedAnswers = (targetPlayer.answers ?? []).map((a, i) =>
       i !== questionIndex ? a : { ...a, earnedPoints: Number(newPoints), manuallyGraded: true }
     );
     const newScore = updatedAnswers.reduce((sum, a) => sum + (a.earnedPoints || 0), 0);
-
     await updateDoc(doc(db, "sessions", sessionId, "players", pid), {
-      answers: updatedAnswers,
-      score: newScore,
+      answers: updatedAnswers, score: newScore,
     });
     setSavingFor(null);
   };
 
   if (loading) return <div className="manage-page"><p className="loading-text">Ładowanie wyników...</p></div>;
 
-  const autoMaxPoints = quiz?.questions
-    ?.filter(q => q.type !== "text")
+  const autoMaxPoints = quiz?.questions?.filter(q => q.type !== "text")
     ?.reduce((sum, q) => sum + (q.points || 1), 0) ?? 0;
-
-  const textQuestions = quiz?.questions
-    ?.map((q, i) => ({ ...q, index: i }))
-    ?.filter(q => q.type === "text") ?? [];
-
+  const textQuestions = quiz?.questions?.map((q, i) => ({ ...q, index: i }))?.filter(q => q.type === "text") ?? [];
   const getPlayerMax = (p) => {
-    const manualGranted = (p.answers ?? [])
-      .filter(a => a.needsManualReview && a.manuallyGraded)
+    const manualGranted = (p.answers ?? []).filter(a => a.needsManualReview && a.manuallyGraded)
       .reduce((sum, a) => sum + (a.earnedPoints || 0), 0);
     return autoMaxPoints + manualGranted;
   };
 
-  // widok gracza
+  /* ── PLAYER VIEW ── */
   if (isPlayerView) {
-    if (!player) return (
-      <div className="manage-page">
-        <p className="loading-text">Ładowanie Twoich wyników...</p>
-      </div>
-    );
-
+    if (!player) return <div className="manage-page"><p className="loading-text">Ładowanie wyników...</p></div>;
     const myRank = players.findIndex(p => p.id === playerId) + 1;
     const playerMax = getPlayerMax(player);
     const percent = playerMax > 0 ? Math.round((player.score / playerMax) * 100) : 0;
 
     return (
       <div className="results-page">
+        <Podium players={players} />
+
         <div className="results-card">
-          <h2>Twoje wyniki</h2>
+          <h2>Twój wynik</h2>
           <p className="results-quiz-title">{quiz?.title}</p>
 
           <div className="results-score-big">
@@ -109,9 +112,7 @@ function ResultsPage() {
             <span className="results-score-max">/ {playerMax} pkt</span>
           </div>
           <div className="results-percent">{percent}%</div>
-          <div className="results-rank">
-            Miejsce #{myRank} z {players.length} graczy
-          </div>
+          <div className="results-rank">Miejsce #{myRank} z {players.length} graczy</div>
 
           <div className="results-ranking">
             <h3>Ranking</h3>
@@ -129,15 +130,11 @@ function ResultsPage() {
             {quiz?.questions?.map((q, i) => {
               const ans = player.answers?.[i];
               if (!ans) return null;
+              const cls = ans.needsManualReview
+                ? (ans.manuallyGraded ? "manual-graded" : "manual")
+                : (ans.correct ? "correct" : "wrong");
               return (
-                <div
-                  key={i}
-                  className={`results-answer-row ${
-                    ans.needsManualReview
-                      ? ans.manuallyGraded ? "manual-graded" : "manual"
-                      : ans.correct ? "correct" : "wrong"
-                  }`}
-                >
+                <div key={i} className={`results-answer-row ${cls}`}>
                   <div className="results-answer-q">
                     <span className="results-answer-num">{i + 1}.</span>
                     {q.question}
@@ -168,15 +165,15 @@ function ResultsPage() {
     );
   }
 
-  // widok hosta
+  /* ── HOST VIEW ── */
   return (
     <div className="results-page">
       <div className="results-header">
-        <h2>Wyniki sesji – {quiz?.title}</h2>
-        <button className="back-btn" onClick={() => navigate("/manage")}>
-          Wróć do quizów
-        </button>
+        <h2>Wyniki – {quiz?.title}</h2>
+        <button className="back-btn" onClick={() => navigate("/manage")}>Wróć do quizów</button>
       </div>
+
+      <Podium players={players} />
 
       <div className="results-section">
         <h3>Ranking końcowy</h3>
@@ -191,9 +188,7 @@ function ResultsPage() {
                 <span className={`player-status player-status--${p.status}`}>
                   {p.status === "finished" ? "Ukończył" : "W trakcie"}
                 </span>
-                <span className="player-score">
-                  {p.score ?? 0} / {pMax} pkt ({pPercent}%)
-                </span>
+                <span className="player-score">{p.score ?? 0} / {pMax} pkt ({pPercent}%)</span>
               </div>
             );
           })}
@@ -232,7 +227,6 @@ function ResultsPage() {
 
 function ManualGradeRow({ nick, answer, currentPoints, isGraded, isSaving, onSave }) {
   const [points, setPoints] = useState(currentPoints);
-
   useEffect(() => { setPoints(currentPoints); }, [currentPoints]);
 
   return (
@@ -249,7 +243,7 @@ function ManualGradeRow({ nick, answer, currentPoints, isGraded, isSaving, onSav
         />
         <button
           className="save-btn"
-          style={{ fontSize: "13px", padding: "6px 12px" }}
+          style={{ fontSize: "13px", padding: "6px 14px", boxShadow: "0 4px 0 var(--primary-shadow)" }}
           onClick={() => onSave(points)}
           disabled={isSaving}
         >

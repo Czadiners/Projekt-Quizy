@@ -1,26 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  serverTimestamp,
+  collection, query, where, getDocs,
+  addDoc, serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../components/Firebase";
 
 function JoinPage() {
-  const [code, setCode] = useState("");
-  const [nick, setNick] = useState("");
-  const [error, setError] = useState("");
+  const [code, setCode]     = useState("");
+  const [nick, setNick]     = useState("");
+  const [error, setError]   = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleJoin = async () => {
     setError("");
     if (!code.trim() || code.trim().length !== 6) {
-      setError("Wpisz poprawny 6-cyfrowy kod.");
+      setError("Wpisz poprawny 6-znakowy kod sesji.");
       return;
     }
     if (!nick.trim()) {
@@ -36,7 +32,6 @@ function JoinPage() {
         where("status", "in", ["waiting", "active"])
       );
       const snap = await getDocs(q);
-
       if (snap.empty) {
         setError("Nie znaleziono sesji z tym kodem. Sprawdź czy kod jest poprawny.");
         setLoading(false);
@@ -46,29 +41,19 @@ function JoinPage() {
       const sessionDoc = snap.docs[0];
       const sessionId = sessionDoc.id;
 
-      // sprawdzanie powtarzalnosci nickow
-      const playersSnap = await getDocs(
-        collection(db, "sessions", sessionId, "players")
-      );
+      const playersSnap = await getDocs(collection(db, "sessions", sessionId, "players"));
       const nickTaken = playersSnap.docs.some(
         (d) => d.data().nick.toLowerCase() === nick.trim().toLowerCase()
       );
       if (nickTaken) {
-        setError("Ten nick jest już zajęty w tej sesji. Wybierz inny.");
+        setError("Ten nick jest już zajęty. Wybierz inny.");
         setLoading(false);
         return;
       }
 
-      // dolaczanie do uruchomionego quizu w sesji
       const playerRef = await addDoc(
         collection(db, "sessions", sessionId, "players"),
-        {
-          nick: nick.trim(),
-          joinedAt: serverTimestamp(),
-          status: "playing",
-          score: 0,
-          answers: [],
-        }
+        { nick: nick.trim(), joinedAt: serverTimestamp(), status: "playing", score: 0, answers: [] }
       );
 
       navigate(`/play/${sessionId}?playerId=${playerRef.id}`);
@@ -79,11 +64,15 @@ function JoinPage() {
     }
   };
 
+  const handleKey = (e) => { if (e.key === "Enter") handleJoin(); };
+
   return (
     <div className="join-page">
       <div className="join-card">
         <h2>Dołącz do quizu</h2>
-        <p className="wizard-subtitle">Wpisz kod sesji i swój nick</p>
+        <p className="wizard-subtitle" style={{ textAlign: "center" }}>
+          Wpisz kod sesji i swój nick
+        </p>
 
         <div className="join-field">
           <label>Kod sesji</label>
@@ -93,7 +82,9 @@ function JoinPage() {
             maxLength={6}
             value={code}
             onChange={(e) => { setCode(e.target.value.toUpperCase()); setError(""); }}
+            onKeyDown={handleKey}
             className="code-input"
+            autoFocus
           />
         </div>
 
@@ -105,14 +96,16 @@ function JoinPage() {
             maxLength={20}
             value={nick}
             onChange={(e) => { setNick(e.target.value); setError(""); }}
+            onKeyDown={handleKey}
           />
         </div>
 
         {error && <p className="form-error">{error}</p>}
 
-        <div className="wizard-actions">
-          <button className="save-btn" onClick={handleJoin} disabled={loading}>
-            {loading ? "Łączenie..." : "Dołącz"}
+        <div className="wizard-actions" style={{ marginTop: "8px" }}>
+          <button className="save-btn" style={{ width: "100%", textAlign: "center", fontSize: "17px", padding: "14px" }}
+            onClick={handleJoin} disabled={loading}>
+            {loading ? "Łączenie..." : "Dołącz do gry"}
           </button>
         </div>
       </div>

@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-  collection,
-  deleteDoc,
-  getDocs,
+  doc, getDoc, updateDoc,
+  onSnapshot, collection, deleteDoc,
 } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
 
@@ -21,53 +16,37 @@ function HostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // sesja w czasie rzeczywistym (odziwo dziala zobaczylem to na poradniku)
   useEffect(() => {
     const unsubSession = onSnapshot(doc(db, "sessions", sessionId), async (snap) => {
       if (!snap.exists()) { navigate("/manage"); return; }
       const data = snap.data();
-
-      // sprawdzenie uzytkownika czy jest hostem
-      if (data.hostId !== auth.currentUser?.uid) {
-        navigate("/manage");
-        return;
-      }
-
+      if (data.hostId !== auth.currentUser?.uid) { navigate("/manage"); return; }
       setSession({ id: snap.id, ...data });
 
-      // pobieranie quizu jak nie zostal pobrany
       if (!quiz) {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
         if (quizSnap.exists()) setQuiz({ id: quizSnap.id, ...quizSnap.data() });
       }
-
       setLoading(false);
     });
 
-    // oczekiwanie na graczy (system lobby)
-    const unsubPlayers = onSnapshot(
-      collection(db, "sessions", sessionId, "players"),
-      (snap) => {
-        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        list.sort((a, b) => (b.score || 0) - (a.score || 0));
-        setPlayers(list);
-      }
-    );
+    const unsubPlayers = onSnapshot(collection(db, "sessions", sessionId, "players"), (snap) => {
+      const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => (b.score || 0) - (a.score || 0));
+      setPlayers(list);
+    });
 
     return () => { unsubSession(); unsubPlayers(); };
   }, [sessionId, navigate]);
 
   const handleStart = async () => {
-    if (players.length === 0) {
-      setError("Poczekaj aż przynajmniej jeden gracz dołączy.");
-      return;
-    }
+    if (players.length === 0) { setError("Poczekaj aż przynajmniej jeden gracz dołączy."); return; }
     await updateDoc(doc(db, "sessions", sessionId), { status: "active" });
     setError("");
   };
 
   const handleEnd = async () => {
-    if (!window.confirm("Czy na pewno chcesz zakończyć sesję? Gracze nie będą mogli dalej grać.")) return;
+    if (!window.confirm("Zakończyć sesję? Gracze nie będą mogli dalej grać.")) return;
     await updateDoc(doc(db, "sessions", sessionId), { status: "finished", finishedAt: new Date() });
     navigate(`/results/${sessionId}`);
   };
@@ -78,21 +57,18 @@ function HostPage() {
 
   if (loading) return <div className="manage-page"><p className="loading-text">Ładowanie sesji...</p></div>;
 
-  const totalPoints = quiz?.questions
-    ?.filter(q => q.type !== "text")
+  const totalPoints = quiz?.questions?.filter(q => q.type !== "text")
     ?.reduce((sum, q) => sum + (q.points || 1), 0) ?? 0;
-
   const finishedCount = players.filter(p => p.status === "finished").length;
 
   return (
     <div className="host-page">
-      {/* NAGŁÓWEK SESJI */}
       <div className="host-header">
         <div>
           <h2>{quiz?.title ?? "Quiz"}</h2>
           <p className="host-subtitle">
             {session.status === "waiting"
-              ? "Poczekaj aż gracze dołączą, a następnie kliknij Start."
+              ? "Udostępnij kod i poczekaj na graczy"
               : session.status === "active"
               ? `Trwa gra · ${finishedCount} / ${players.length} ukończyło`
               : "Sesja zakończona"}
@@ -113,21 +89,20 @@ function HostPage() {
         </div>
       </div>
 
-      {/* KOD DOSTĘPU */}
+      {/* BIG PIN CODE */}
       <div className="session-code-banner">
-        <span>Kod dostępu:</span>
+        <span className="session-code-label">Kod dostępu</span>
         <span className="session-code">{session.code}</span>
-        <span className="session-code-hint">Podaj ten kod uczestnikom</span>
+        <span className="session-code-hint">Wejdź na stronę i wpisz kod</span>
       </div>
 
       {error && <p className="form-error" style={{ marginBottom: "16px" }}>{error}</p>}
 
-      {/* LISTA GRACZY / RANKING */}
       <div className="host-players">
         <h3>
           {session.status === "waiting"
-            ? `Lobby (${players.length} graczy)`
-            : `Ranking na żywo (${players.length} graczy)`}
+            ? `Lobby - ${players.length} graczy`
+            : `Ranking na żywo — ${players.length} graczy`}
         </h3>
 
         {players.length === 0 ? (
@@ -141,18 +116,13 @@ function HostPage() {
                 </span>
                 <span className="player-nick">{player.nick}</span>
                 <span className={`player-status player-status--${player.status}`}>
-                  {player.status === "playing" ? "Gra" : player.status === "finished" ? "Ukończył" : ""}
+                  {player.status === "playing" ? "Gra" : player.status === "finished" ? "Ukończył" : "Czeka"}
                 </span>
                 {session.status !== "waiting" && (
-                  <span className="player-score">
-                    {player.score ?? 0} / {totalPoints} pkt
-                  </span>
+                  <span className="player-score">{player.score ?? 0} / {totalPoints} pkt</span>
                 )}
                 {session.status === "waiting" && (
-                  <button
-                    className="kick-btn"
-                    onClick={() => handleKickPlayer(player.id)}
-                  >
+                  <button className="kick-btn" onClick={() => handleKickPlayer(player.id)}>
                     Usuń
                   </button>
                 )}

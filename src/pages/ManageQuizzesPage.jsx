@@ -9,16 +9,15 @@ import { createSession } from "../components/sessionUtils";
 
 const MAX_DESC_LENGTH = 120;
 
-// kwadracik reprezentujacy quiz z opcjami w zebatce
-
+/* ─── Quiz Card ─────────────────────────────────────────────────── */
 function QuizCard({ quiz, onDelete }) {
-  const [expanded, setExpanded] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded]   = useState(false);
+  const [menuOpen, setMenuOpen]   = useState(false);
   const [launching, setLaunching] = useState(false);
-  const menuRef = useRef(null);
+  const menuRef  = useRef(null);
   const navigate = useNavigate();
 
-  const isLong = quiz.description && quiz.description.length > MAX_DESC_LENGTH;
+  const isLong     = quiz.description && quiz.description.length > MAX_DESC_LENGTH;
   const displayDesc = expanded || !isLong
     ? quiz.description
     : quiz.description.slice(0, MAX_DESC_LENGTH) + "...";
@@ -33,7 +32,7 @@ function QuizCard({ quiz, onDelete }) {
 
   const handleDelete = async () => {
     setMenuOpen(false);
-    if (!window.confirm(`Czy na pewno chcesz usunąć quiz "${quiz.title}"?`)) return;
+    if (!window.confirm(`Usunąć quiz "${quiz.title}"?`)) return;
     await onDelete(quiz.id);
   };
 
@@ -57,11 +56,15 @@ function QuizCard({ quiz, onDelete }) {
           <button className="menu-btn" onClick={() => setMenuOpen(p => !p)} title="Opcje">⚙</button>
           {menuOpen && (
             <div className="menu-dropdown">
-              <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>Edytuj quiz</button>
+              <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
+                Edytuj quiz
+              </button>
               <button onClick={handleLaunch} disabled={launching}>
                 {launching ? "Uruchamianie..." : "Uruchom sesję"}
               </button>
-              <button className="delete-option" onClick={handleDelete}>Usuń quiz</button>
+              <button className="delete-option" onClick={handleDelete}>
+                Usuń quiz
+              </button>
             </div>
           )}
         </div>
@@ -87,42 +90,58 @@ function QuizCard({ quiz, onDelete }) {
   );
 }
 
-// historia sesji
-
+/* ─── Session History ───────────────────────────────────────────── */
 function SessionHistory() {
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedSession, setExpandedSession] = useState(null);
-  const [playersMap, setPlayersMap] = useState({});
+  const [sessions, setSessions]         = useState([]);
+  const [loading, setLoading]           = useState(true);
+  const [expandedSession, setExpanded]  = useState(null);
+  const [playersMap, setPlayersMap]     = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Query ALL sessions for this host, ordered by creation date
+    // (no status filter — includes finished ones)
     const q = query(
       collection(db, "sessions"),
       where("hostId", "==", auth.currentUser.uid),
       orderBy("createdAt", "desc")
     );
 
-    const unsub = onSnapshot(q, async (snap) => {
-      const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setSessions(list);
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setSessions(list);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("Historia sesji – błąd:", err.message);
+        setLoading(false);
+      }
+    );
 
     return () => unsub();
   }, []);
 
-  const loadPlayers = async (sessionId) => {
-    if (playersMap[sessionId]) {
-      setExpandedSession(expandedSession === sessionId ? null : sessionId);
+  const toggleSession = async (sessionId) => {
+    if (expandedSession === sessionId) {
+      setExpanded(null);
       return;
     }
-    const snap = await getDocs(collection(db, "sessions", sessionId, "players"));
-    const list = snap.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (b.score || 0) - (a.score || 0));
-    setPlayersMap(prev => ({ ...prev, [sessionId]: list }));
-    setExpandedSession(sessionId);
+    // Load players only if not cached yet
+    if (!playersMap[sessionId]) {
+      try {
+        const snap = await getDocs(collection(db, "sessions", sessionId, "players"));
+        const list = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.score || 0) - (a.score || 0));
+        setPlayersMap(prev => ({ ...prev, [sessionId]: list }));
+      } catch (err) {
+        console.error("Błąd ładowania graczy:", err.message);
+        setPlayersMap(prev => ({ ...prev, [sessionId]: [] }));
+      }
+    }
+    setExpanded(sessionId);
   };
 
   const formatDate = (ts) => {
@@ -138,6 +157,7 @@ function SessionHistory() {
 
   if (sessions.length === 0) return (
     <div className="empty-state" style={{ padding: "40px 0" }}>
+      <div className="empty-icon">🎮</div>
       <h3>Brak historii sesji</h3>
       <p>Uruchom quiz, aby zobaczyć tu historię rozgrywek.</p>
     </div>
@@ -147,14 +167,11 @@ function SessionHistory() {
     <div className="session-history">
       {sessions.map((s) => {
         const isExpanded = expandedSession === s.id;
-        const players = playersMap[s.id] ?? [];
+        const players    = playersMap[s.id] ?? [];
 
         return (
           <div key={s.id} className="session-row">
-            <div
-              className="session-row-header"
-              onClick={() => loadPlayers(s.id)}
-            >
+            <div className="session-row-header" onClick={() => toggleSession(s.id)}>
               <div className="session-row-info">
                 <span className="session-row-title">{s.quizTitle || "Quiz"}</span>
                 <span className="session-row-meta">
@@ -163,14 +180,14 @@ function SessionHistory() {
               </div>
               <div className="session-row-right">
                 <span className={`session-status session-status--${s.status}`}>
-                  {s.status === "waiting" ? "Oczekiwanie"
+                  {s.status === "waiting"  ? "Oczekiwanie"
                     : s.status === "active" ? "Trwa"
                     : "Zakończona"}
                 </span>
                 {s.status === "active" && (
                   <button
                     className="save-btn"
-                    style={{ fontSize: "13px", padding: "5px 12px" }}
+                    style={{ fontSize: "13px", padding: "6px 14px" }}
                     onClick={(e) => { e.stopPropagation(); navigate(`/host/${s.id}`); }}
                   >
                     Wróć do sesji
@@ -179,7 +196,7 @@ function SessionHistory() {
                 {s.status === "finished" && (
                   <button
                     className="add-question-btn"
-                    style={{ fontSize: "13px", padding: "5px 12px" }}
+                    style={{ fontSize: "13px", padding: "6px 14px" }}
                     onClick={(e) => { e.stopPropagation(); navigate(`/results/${s.id}`); }}
                   >
                     Wyniki
@@ -192,7 +209,9 @@ function SessionHistory() {
             {isExpanded && (
               <div className="session-row-players">
                 {players.length === 0 ? (
-                  <p style={{ color: "#888", fontSize: "14px" }}>Brak graczy w tej sesji.</p>
+                  <p style={{ color: "var(--text-muted)", fontSize: "14px", fontWeight: 700 }}>
+                    Brak graczy w tej sesji.
+                  </p>
                 ) : (
                   <table className="history-table">
                     <thead>
@@ -228,11 +247,10 @@ function SessionHistory() {
   );
 }
 
-// main strona
-
+/* ─── Main page ─────────────────────────────────────────────────── */
 function ManageQuizzesPage() {
-  const [quizzes, setQuizzes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [quizzes, setQuizzes]   = useState([]);
+  const [loading, setLoading]   = useState(true);
   const [activeTab, setActiveTab] = useState("quizzes");
 
   useEffect(() => {
@@ -269,11 +287,10 @@ function ManageQuizzesPage() {
       <div className="manage-header">
         <h2>Panel quizów</h2>
         {activeTab === "quizzes" && (
-          <Link to="/create" className="save-btn">Utwórz nowy quiz</Link>
+          <Link to="/create" className="save-btn">+ Utwórz nowy quiz</Link>
         )}
       </div>
 
-      {/* ZAKŁADKI */}
       <div className="manage-tabs">
         <button
           className={`manage-tab ${activeTab === "quizzes" ? "active" : ""}`}
@@ -289,7 +306,6 @@ function ManageQuizzesPage() {
         </button>
       </div>
 
-      {/* QUIZY */}
       {activeTab === "quizzes" && (
         loading ? (
           <p className="loading-text">Ładowanie quizów...</p>
@@ -311,7 +327,6 @@ function ManageQuizzesPage() {
         )
       )}
 
-      {/* HISTORIA */}
       {activeTab === "history" && <SessionHistory />}
     </div>
   );

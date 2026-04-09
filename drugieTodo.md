@@ -2,7 +2,7 @@
 
 ## main rzecz do zastanowienia sie:
 
-historia gier usuwa sie po skonczonej sesji a najlepiej by bylo gdyby historia sie wyswietlala cala i jest dostepna ciagle bo zapisywana historia sesji jest w firebase
+historia gier usuwa sie po skonczonej sesji a najlepiej by bylo gdyby historia sie wyswietlala cala i jest dostepna ciagle bo zapisywana historia sesji jest w firebase, częściowo rozwizane (img z errorami zapisane tutaj, tak wiem ze w paint XD)
 jak tworzy sie quiz i kliknie sie wstecz do pytania to nie ma zadnego przycisku nastepne
 
 

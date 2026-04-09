@@ -9,7 +9,7 @@ import { createSession } from "../components/sessionUtils";
 
 const MAX_DESC_LENGTH = 120;
 
-// ==================== QUIZ CARD ====================
+// kwadracik reprezentujacy quiz z opcjami w zebatce
 
 function QuizCard({ quiz, onDelete }) {
   const [expanded, setExpanded] = useState(false);
@@ -87,7 +87,7 @@ function QuizCard({ quiz, onDelete }) {
   );
 }
 
-// ==================== HISTORIA SESJI ====================
+// historia sesji
 
 function SessionHistory() {
   const [sessions, setSessions] = useState([]);
@@ -228,12 +228,12 @@ function SessionHistory() {
   );
 }
 
-// ==================== GŁÓWNA STRONA ====================
+// main strona
 
 function ManageQuizzesPage() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("quizzes"); // "quizzes" | "history"
+  const [activeTab, setActiveTab] = useState("quizzes");
 
   useEffect(() => {
     const fetchQuizzes = async () => {

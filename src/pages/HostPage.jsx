@@ -21,13 +21,13 @@ function HostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Nasłuchuj sesji w czasie rzeczywistym
+  // sesja w czasie rzeczywistym (odziwo dziala zobaczylem to na poradniku)
   useEffect(() => {
     const unsubSession = onSnapshot(doc(db, "sessions", sessionId), async (snap) => {
       if (!snap.exists()) { navigate("/manage"); return; }
       const data = snap.data();
 
-      // Sprawdź czy host
+      // sprawdzenie uzytkownika czy jest hostem
       if (data.hostId !== auth.currentUser?.uid) {
         navigate("/manage");
         return;
@@ -35,7 +35,7 @@ function HostPage() {
 
       setSession({ id: snap.id, ...data });
 
-      // Pobierz quiz jeśli jeszcze nie mamy
+      // pobieranie quizu jak nie zostal pobrany
       if (!quiz) {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
         if (quizSnap.exists()) setQuiz({ id: quizSnap.id, ...quizSnap.data() });
@@ -44,7 +44,7 @@ function HostPage() {
       setLoading(false);
     });
 
-    // Nasłuchuj graczy w czasie rzeczywistym
+    // oczekiwanie na graczy (system lobby)
     const unsubPlayers = onSnapshot(
       collection(db, "sessions", sessionId, "players"),
       (snap) => {

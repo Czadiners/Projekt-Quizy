@@ -155,7 +155,7 @@ function EditQuizPage() {
         if (data.authorId !== auth.currentUser.uid) { alert("Brak dostępu."); navigate("/manage"); return; }
         setTitle(data.title);
         setDescription(data.description || "");
-        // zapewnij że każde pytanie ma pole points
+        // warunek ze kazde pytanie musi miec pole punktowe
         const qs = (data.questions || []).map(q => ({
           ...q,
           points: q.points ?? (q.type === "text" ? 0 : 1),

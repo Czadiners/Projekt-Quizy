@@ -46,7 +46,7 @@ function JoinPage() {
       const sessionDoc = snap.docs[0];
       const sessionId = sessionDoc.id;
 
-      // Sprawdź czy nick nie jest zajęty
+      // sprawdzanie powtarzalnosci nickow
       const playersSnap = await getDocs(
         collection(db, "sessions", sessionId, "players")
       );
@@ -59,7 +59,7 @@ function JoinPage() {
         return;
       }
 
-      // Dołącz do sesji
+      // dolaczanie do uruchomionego quizu w sesji
       const playerRef = await addDoc(
         collection(db, "sessions", sessionId, "players"),
         {

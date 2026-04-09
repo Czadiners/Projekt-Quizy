@@ -13,7 +13,7 @@ const generateCode = () => {
 export const createSession = async (quizId) => {
   const code = generateCode();
 
-  // Pobierz tytuł quizu żeby wyświetlać go w historii
+  // pobieranie nazwy quizu zeby wyswietlic w historii gier
   const quizSnap = await getDoc(doc(db, "quizzes", quizId));
   const quizTitle = quizSnap.exists() ? quizSnap.data().title : "Quiz";
 

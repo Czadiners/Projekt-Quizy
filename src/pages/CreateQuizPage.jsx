@@ -52,7 +52,7 @@ function PointsInput({ value, onChange, disabled }) {
 }
 
 function CreateQuizPage() {
-  const [step, setStep] = useState("title"); // title | description | question
+  const [step, setStep] = useState("title"); // tworzenie pytan krok po kroku
   const [addingType, setAddingType] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -121,7 +121,7 @@ function CreateQuizPage() {
     }
   };
 
-  // --- WYBÓR TYPU — sprawdzamy PRZED step ---
+  // --- WYBÓR TYPU
   if (addingType) return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -146,7 +146,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  // --- KROK 1: Tytuł ---
+  // tytul
   if (step === "title") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -166,7 +166,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  // --- KROK 2: Opis ---
+  // opis
   if (step === "description") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -182,7 +182,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  // --- KROK 3+: Pytanie ---
+  // pytania w quizie
   if (step === "question" && currentQuestion) return (
     <div className="create-quiz-page">
       <div className="wizard-card">

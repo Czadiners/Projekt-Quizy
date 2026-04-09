@@ -24,7 +24,7 @@ function PlayPage() {
   const [waitingForStart, setWaitingForStart] = useState(true);
   const [kicked, setKicked] = useState(false);
 
-  // Nasłuchuj sesji
+  // nasluchiwanie sesji w celu grania asynchronicznego po starcie
   useEffect(() => {
     if (!playerId) { navigate("/join"); return; }
 
@@ -53,7 +53,7 @@ function PlayPage() {
     return () => unsubSession();
   }, [sessionId, playerId, navigate, submitted, quiz]);
 
-  // Nasłuchuj czy gracz nie został wyrzucony
+  // poprawiona funkcja usuwania gracza z quizu recznie 
   useEffect(() => {
     if (!playerId) return;
 
@@ -155,7 +155,7 @@ function PlayPage() {
     }
   };
 
-  // Ekran wyrzucenia
+  // ekran wyrzucenia
   if (kicked) return (
     <div className="play-waiting">
       <div className="play-waiting-card">

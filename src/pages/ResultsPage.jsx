@@ -10,6 +10,8 @@ function ResultsPage() {
   const navigate = useNavigate();
 
   // Kluczowa zasada: playerId w URL = widok gracza, brak = widok hosta
+  // rozroznianie czy gracz czy host
+  // w linku bedzie playerid jezeli to gracz i dzieki temu nie ma potem mozliwosci tych co host (wczesniej sie wywalalo)
   const isPlayerView = !!playerId;
 
   const [session, setSession] = useState(null);
@@ -84,7 +86,7 @@ function ResultsPage() {
     return autoMaxPoints + manualGranted;
   };
 
-  // ==================== WIDOK GRACZA ====================
+  // widok gracza
   if (isPlayerView) {
     if (!player) return (
       <div className="manage-page">
@@ -166,7 +168,7 @@ function ResultsPage() {
     );
   }
 
-  // ==================== WIDOK HOSTA ====================
+  // widok hosta
   return (
     <div className="results-page">
       <div className="results-header">

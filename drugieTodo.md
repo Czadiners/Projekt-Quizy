@@ -27,6 +27,11 @@ Q: Czcionka?
 
 A: 1. Nunito (Mój faworyt dla Twojego projektu) To jest "król" aplikacji mobilnych i quizów. Jest niesamowicie czytelna, ale ma zaokrąglone kształty, co sprawia, że interfejs wydaje się przyjazny i mniej "poważny".  Vibe: Nowoczesna gra, profesjonalna ale "luzacka".  Gdzie znaleźć: Google Fonts - Nunito
 
+pamietaj aby takze poswiecic na inne aspekty np.styl logowania i rejestracji czy bardziej juz obfita strona główna ale szczegolami jej zajmiemy sie pozniej. 
+
+mozliwy error:
+gdy zarzadzamy quizami i klikniemy zębatkę przy quizie nie wyswietla wszystkich opcji - tak jakby były ucięte.
+
 ### 5. Obsługa błędów
 - Zastąpić wszystkie `alert()` komunikatami inline (klasa `form-error`)
 - Dotyczy: LoginPage, RegisterPage, EditQuizPage, ManageQuizzesPage

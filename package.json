@@ -9,7 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.8",
     "create-react-app": "^5.1.0",
-    "firebase": "^12.11.0",
+    "firebase": "^12.12.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",

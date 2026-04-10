@@ -1,23 +1,6 @@
 ## Do zrobienia
 
-## main rzecz do zastanowienia sie:
-
-historia gier usuwa sie po skonczonej sesji a najlepiej by bylo gdyby historia sie wyswietlala cala i jest dostepna ciagle bo zapisywana historia sesji jest w firebase, częściowo rozwizane (img z errorami zapisane tutaj, tak wiem ze w paint XD)
-jak tworzy sie quiz i kliknie sie wstecz do pytania to nie ma zadnego przycisku nastepne
-
-
-### 5. Obsługa błędów
-- Zastąpić wszystkie `alert()` komunikatami inline (klasa `form-error`)
-- Dotyczy: LoginPage, RegisterPage, EditQuizPage, ManageQuizzesPage
-
-### 6. Strona logowania / rejestracji
-- LoginPage: link "Nie masz konta? Zarejestruj się"
-- RegisterPage: link "Masz już konto? Zaloguj się"
-- Powtórzenie hasła przy rejestracji
-- Podgląd hasła (przycisk pokaż/ukryj)
-- Czytelne komunikaty błędów Firebase (zamiast surowych kodów)
-- nie trzeba klikac przycisku login lub register tylko wciseniecie enter na klawiaturze tez zadziala
-
+    main funkcje zrobione :3
 ---
 
 ## Do zrobienia – Opcjonalne (rozszerzenia z PDF)

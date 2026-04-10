@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   collection, query, where, getDocs,
-  deleteDoc, doc, orderBy, onSnapshot,
+  deleteDoc, doc, onSnapshot,
 } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
 import { createSession } from "../components/sessionUtils";
@@ -99,18 +99,24 @@ function SessionHistory() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Query ALL sessions for this host, ordered by creation date
-    // (no status filter — includes finished ones)
+    // Only filter by hostId — no orderBy, so no composite index needed.
+    // Sorting is done client-side after fetch.
     const q = query(
       collection(db, "sessions"),
-      where("hostId", "==", auth.currentUser.uid),
-      orderBy("createdAt", "desc")
+      where("hostId", "==", auth.currentUser.uid)
     );
 
     const unsub = onSnapshot(
       q,
       (snap) => {
-        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const list = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          // Sort newest first client-side
+          .sort((a, b) => {
+            const ta = a.createdAt?.toDate?.() ?? new Date(0);
+            const tb = b.createdAt?.toDate?.() ?? new Date(0);
+            return tb - ta;
+          });
         setSessions(list);
         setLoading(false);
       },
@@ -259,11 +265,17 @@ function ManageQuizzesPage() {
       try {
         const q = query(
           collection(db, "quizzes"),
-          where("authorId", "==", auth.currentUser.uid),
-          orderBy("createdAt", "desc")
+          where("authorId", "==", auth.currentUser.uid)
         );
         const snap = await getDocs(q);
-        setQuizzes(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const list = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => {
+            const ta = a.createdAt?.toDate?.() ?? new Date(0);
+            const tb = b.createdAt?.toDate?.() ?? new Date(0);
+            return tb - ta;
+          });
+        setQuizzes(list);
       } catch (err) {
         console.error("Błąd pobierania quizów:", err.message);
       } finally {

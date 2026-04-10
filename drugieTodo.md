@@ -5,6 +5,7 @@
 
 ## Do zrobienia – Opcjonalne (rozszerzenia z PDF)
 
+delikatny błąd wizualny: po kliknieciu zębatki danego quizu reszta opcji jak jest ich wiecej jest zasłaniana przez np quizy nizej i przez to nie da sie ich kliknac. 
 
 ### 8. Losowanie pytań
 - Opcja losowej kolejności pytań przy graniu

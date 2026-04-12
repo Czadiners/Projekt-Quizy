@@ -1,6 +1,7 @@
 prawie fajrant tylko ogarnac hosting i przygotowac sie do prezentacji
 main kontent - strona glowna, w szczegolnosci stopka, dane kontaktowe itd
 przejzec zawartosc kodu -> poprawic komentarze zeby wygladaly na ludzkie
+obsługa potwierdzania usunięcia quizu bo na ten moment pokazuje sie szpetny alert
 
 ## do prezentacji po ogarnieciu hostingu:
 przetestowac wszystkie funkcje i poprawnosc dzialania

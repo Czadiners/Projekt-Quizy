@@ -3,6 +3,21 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, onSnapshot, collection, updateDoc } from "firebase/firestore";
 import { db } from "../components/Firebase";
 
+
+function downloadCSV(filename, rows) {
+  const escape = (v) => {
+    const s = String(v ?? "");
+    return s.includes(",") || s.includes('"') || s.includes("\n")
+      ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const csv = rows.map(r => r.map(escape).join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
 function Podium({ players }) {
   if (players.length === 0) return null;
   const top = players.slice(0, 3);
@@ -170,7 +185,32 @@ function ResultsPage() {
     <div className="results-page">
       <div className="results-header">
         <h2>Wyniki – {quiz?.title}</h2>
-        <button className="back-btn" onClick={() => navigate("/manage")}>Wróć do quizów</button>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button className="csv-btn" onClick={() => {
+            const questions = quiz?.questions ?? [];
+            const autoMax   = questions.filter(q => q.type !== "text")
+              .reduce((s, q) => s + (q.points || 1), 0);
+            const header = [
+              "Nick", "Wynik", "Maks. punktów", "%",
+              ...questions.map((_, i) => `Pytanie ${i + 1}`),
+            ];
+            const rows = players.map(p => {
+              const score = p.score ?? 0;
+              const pct   = autoMax > 0 ? Math.round((score / autoMax) * 100) + "%" : "—";
+              const ansCols = questions.map((_, i) => {
+                const a = p.answers?.[i];
+                if (!a) return "brak";
+                if (a.needsManualReview) return a.answer ?? "brak";
+                return a.correct ? "poprawna" : "błędna";
+              });
+              return [p.nick, score, autoMax, pct, ...ansCols];
+            });
+            downloadCSV(`wyniki_${quiz?.title ?? "sesja"}.csv`, [header, ...rows]);
+          }}>
+            Eksport CSV
+          </button>
+          <button className="back-btn" onClick={() => navigate("/manage")}>Wróć do quizów</button>
+        </div>
       </div>
 
       <Podium players={players} />

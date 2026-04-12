@@ -36,7 +36,19 @@ function PlayPage() {
       }
       if (!quiz && data.quizId) {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
-        if (quizSnap.exists()) setQuiz({ id: quizSnap.id, ...quizSnap.data() });
+        if (quizSnap.exists()) {
+          const qData = { id: quizSnap.id, ...quizSnap.data() };
+          // Apply shuffle if enabled on this quiz
+          if (qData.shuffleQuestions && Array.isArray(qData.questions)) {
+            const shuffled = [...qData.questions];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            qData.questions = shuffled;
+          }
+          setQuiz(qData);
+        }
       }
       setLoading(false);
     });

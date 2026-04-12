@@ -525,13 +525,19 @@ a { text-decoration: none; color: inherit; }
 .quiz-card {
   background: var(--card); border: 2px solid var(--border);
   border-radius: 20px;
-  /* NO overflow:hidden here so dropdown isn't clipped */
   box-shadow: var(--shadow);
   display: flex; flex-direction: column;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   position: relative;
+  z-index: 1;
 }
-.quiz-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+/* When menu is open, lift this card above all siblings */
+.quiz-card--menu-open {
+  z-index: 100;
+  transform: none !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.quiz-card:not(.quiz-card--menu-open):hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
 .quiz-card:nth-child(4n+1) { border-top: 5px solid var(--primary); }
 .quiz-card:nth-child(4n+2) { border-top: 5px solid var(--blue); }
 .quiz-card:nth-child(4n+3) { border-top: 5px solid var(--success); }
@@ -1048,3 +1054,131 @@ a { text-decoration: none; color: inherit; }
   .podium-place--2 { padding-bottom: 16px; }
   .podium-place--3 { padding-bottom: 12px; }
 }
+
+/* ═══════════════════════════════════════════════
+   SHUFFLE TOGGLE
+═══════════════════════════════════════════════ */
+.shuffle-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-top: 2px solid var(--border);
+  background: var(--bg); gap: 10px;
+}
+.shuffle-toggle-label {
+  font-size: 13px; font-weight: 800; color: var(--text);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.shuffle-toggle-label span {
+  font-size: 11px; font-weight: 600; color: var(--text-muted);
+}
+.toggle-switch {
+  position: relative; width: 44px; height: 24px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: var(--border-strong);
+  border-radius: 50px; cursor: pointer;
+  transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: white; left: 3px; top: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--success); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* ═══════════════════════════════════════════════
+   SESSION INNER TABS
+═══════════════════════════════════════════════ */
+.session-inner-tabs {
+  display: flex; gap: 0; border-bottom: 2px solid var(--border);
+  margin: 14px 0 0;
+}
+.session-inner-tab {
+  padding: 8px 18px; background: none; border: none;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+  cursor: pointer; color: var(--text-muted);
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color 0.15s;
+}
+.session-inner-tab:hover { color: var(--text); }
+.session-inner-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ═══════════════════════════════════════════════
+   QUESTION STATS
+═══════════════════════════════════════════════ */
+.stats-grid {
+  display: flex; flex-direction: column; gap: 10px; padding: 16px 0;
+}
+.stat-card {
+  background: var(--bg); border-radius: 12px;
+  padding: 14px 16px; border: 1px solid var(--border);
+}
+.stat-card-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 10px; margin-bottom: 10px;
+}
+.stat-q-num {
+  font-size: 11px; font-weight: 900; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+}
+.stat-q-text {
+  font-size: 14px; font-weight: 800; color: var(--text); flex: 1;
+  line-height: 1.4;
+}
+.stat-pct-badge {
+  font-size: 18px; font-weight: 900; white-space: nowrap; min-width: 52px;
+  text-align: right;
+}
+.stat-pct-badge.good  { color: var(--success); }
+.stat-pct-badge.mid   { color: var(--yellow-dark); }
+.stat-pct-badge.bad   { color: var(--danger); }
+.stat-bar-bg {
+  height: 10px; background: var(--border);
+  border-radius: 50px; overflow: hidden; margin-bottom: 6px;
+}
+.stat-bar-fill {
+  height: 100%; border-radius: 50px;
+  transition: width 0.5s ease;
+}
+.stat-bar-fill.good  { background: var(--success); }
+.stat-bar-fill.mid   { background: var(--yellow); }
+.stat-bar-fill.bad   { background: var(--danger); }
+.stat-meta {
+  font-size: 12px; color: var(--text-muted); font-weight: 700;
+}
+.stat-text-note {
+  font-size: 13px; color: var(--text-muted); font-weight: 700;
+  font-style: italic; padding: 6px 0;
+}
+.stats-summary {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-bottom: 16px;
+}
+.stats-summary-card {
+  background: white; border: 2px solid var(--border);
+  border-radius: 12px; padding: 14px 12px; text-align: center;
+}
+.stats-summary-num {
+  font-size: 26px; font-weight: 900; color: var(--primary);
+  line-height: 1;
+}
+.stats-summary-label {
+  font-size: 11px; font-weight: 800; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════
+   CSV EXPORT BUTTON
+═══════════════════════════════════════════════ */
+.csv-btn {
+  padding: 6px 14px;
+  background: white; color: var(--success-dark);
+  border: 2px solid var(--success);
+  border-radius: 50px; cursor: pointer;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+  transition: all 0.15s; white-space: nowrap;
+}
+.csv-btn:hover { background: var(--success); color: white; }

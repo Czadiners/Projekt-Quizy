@@ -1,4 +1,6 @@
 prawie fajrant tylko ogarnac hosting i przygotowac sie do prezentacji
+main kontent - strona glowna, w szczegolnosci stopka, dane kontaktowe itd
+przejzec zawartosc kodu -> poprawic komentarze zeby wygladaly na ludzkie
 
 ## do prezentacji po ogarnieciu hostingu:
 przetestowac wszystkie funkcje i poprawnosc dzialania

@@ -156,8 +156,8 @@ function PlayPage() {
     <div className="play-waiting">
       <div className="play-waiting-card">
         <div className="kicked-icon">✕</div>
-        <h2>Usunięto Cię z sesji</h2>
-        <p>Gospodarz usunął Cię z tego quizu.</p>
+        <h2>Usunięto cię z sesji</h2>
+        <p>Gospodarz usunął cię z tego quizu.</p>
         <button className="save-btn" style={{ marginTop: "24px" }} onClick={() => navigate("/join")}>
           Wróć do dołączania
         </button>

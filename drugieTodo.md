@@ -1,24 +1,9 @@
-## Do zrobienia
+prawie fajrant tylko ogarnac hosting i przygotowac sie do prezentacji
 
-    main funkcje zrobione :3
----
-
-## Do zrobienia – Opcjonalne (rozszerzenia z PDF)
-
-delikatny błąd wizualny: po kliknieciu zębatki danego quizu reszta opcji jak jest ich wiecej jest zasłaniana przez np quizy nizej i przez to nie da sie ich kliknac. 
-
-### 8. Losowanie pytań
-- Opcja losowej kolejności pytań przy graniu
-- Twórca włącza/wyłącza w ustawieniach quizu
-
-### 9. Statystyki pytań
-- Widok dla twórcy: które pytanie miało najniższy % poprawnych odpowiedzi (w historii sesji)
-
-### 10. Eksport wyników do CSV
-- Przycisk w historii prób
-- Plik: uczestnik, data, wynik, odpowiedzi
-
----
+## do prezentacji po ogarnieciu hostingu:
+przetestowac wszystkie funkcje i poprawnosc dzialania
+ przygotowac sie do prezentacji demo
+ przygotowac sie do wyjasnianai funkcji jak dane rzeczy zostaly rozwiazane i zrobione
 
 ## Organizacyjne (na koniec)
 
@@ -27,9 +12,3 @@ delikatny błąd wizualny: po kliknieciu zębatki danego quizu reszta opcji jak 
 - [ ] Prezentacja 5–7 minut + demo
 
 ---
-
-## Pytanie otwarte
-**Granie bez hostingu:** Tak, jest to możliwe przez udostępnienie linku do lokalnego serwera
-w sieci lokalnej (`npm start` + IP komputera) albo przez darmowy hosting na
-Firebase Hosting / Netlify / Vercel – żadne z nich nie wymaga płatnego planu dla projektu
-tej skali. Najprościej: `firebase deploy` po skonfigurowaniu Firebase Hosting.

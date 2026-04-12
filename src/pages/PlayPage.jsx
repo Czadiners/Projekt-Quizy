@@ -38,14 +38,19 @@ function PlayPage() {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
         if (quizSnap.exists()) {
           const qData = { id: quizSnap.id, ...quizSnap.data() };
-          // Apply shuffle if enabled on this quiz
-          if (qData.shuffleQuestions && Array.isArray(qData.questions)) {
-            const shuffled = [...qData.questions];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          // Apply shuffle if enabled on this quiz.
+          // Tag each question with its original index BEFORE shuffling
+          // so answers can be saved back in the correct original position.
+          if (Array.isArray(qData.questions)) {
+            qData.questions = qData.questions.map((q, idx) => ({ ...q, _originalIndex: idx }));
+            if (qData.shuffleQuestions) {
+              const shuffled = [...qData.questions];
+              for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+              }
+              qData.questions = shuffled;
             }
-            qData.questions = shuffled;
           }
           setQuiz(qData);
         }
@@ -102,8 +107,12 @@ function PlayPage() {
     setSubmitted(true);
 
     let totalScore = 0;
-    const answersArray = quiz.questions.map((q, i) => {
-      const userAnswer = answers[i] ?? null;
+
+    // Build a result for each question in SHUFFLED display order,
+    // then sort by _originalIndex so Firestore stores answers
+    // in the same order as the original quiz questions.
+    const answersUnsorted = quiz.questions.map((q, displayIndex) => {
+      const userAnswer = answers[displayIndex] ?? null;
       let correct = false;
       let earnedPoints = 0;
 
@@ -123,8 +132,13 @@ function PlayPage() {
       }
 
       totalScore += earnedPoints;
-      return { questionIndex: i, answer: userAnswer, correct, earnedPoints, needsManualReview: q.type === "text" };
+      // Use _originalIndex if present (shuffle was on), else use displayIndex
+      const originalIndex = q._originalIndex ?? displayIndex;
+      return { questionIndex: originalIndex, answer: userAnswer, correct, earnedPoints, needsManualReview: q.type === "text" };
     });
+
+    // Sort by original question index so array[0] = original question 0, etc.
+    const answersArray = [...answersUnsorted].sort((a, b) => a.questionIndex - b.questionIndex);
 
     try {
       await updateDoc(doc(db, "sessions", sessionId, "players", playerId), {

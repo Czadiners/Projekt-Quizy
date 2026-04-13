@@ -118,7 +118,7 @@ function QuestionEditor({ question, index, questions, setQuestions }) {
       )}
 
       {question.type === "text" && (
-        <p className="correct-hint" style={{ fontSize: "14px", color: "#555" }}>
+        <p className="correct-hint" style={{ fontSize: "14px", color: "#6B7280", marginBottom: "16px" }}>
           Uczestnik wpisze własną odpowiedź. Ty przyznasz punkt ręcznie po zakończeniu quizu.
         </p>
       )}
@@ -144,6 +144,7 @@ function EditQuizPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [step, setStep] = useState("questions");
   const [addingType, setAddingType] = useState(false);
+  const [shuffle, setShuffle] = useState(false);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -155,12 +156,12 @@ function EditQuizPage() {
         if (data.authorId !== auth.currentUser.uid) { alert("Brak dostępu."); navigate("/manage"); return; }
         setTitle(data.title);
         setDescription(data.description || "");
-        // zapewnij że każde pytanie ma pole points
         const qs = (data.questions || []).map(q => ({
           ...q,
           points: q.points ?? (q.type === "text" ? 0 : 1),
         }));
         setQuestions(qs);
+        setShuffle(data.shuffleQuestions ?? false);
       } catch (err) {
         alert("Błąd podczas wczytywania: " + err.message);
       } finally {
@@ -183,7 +184,7 @@ function EditQuizPage() {
     }
     setSaving(true);
     try {
-      await updateDoc(doc(db, "quizzes", quizId), { title, description, questions });
+      await updateDoc(doc(db, "quizzes", quizId), { title, description, questions, shuffleQuestions: shuffle });
       alert("Quiz zapisany!");
       navigate("/manage");
     } catch (err) {
@@ -221,16 +222,16 @@ function EditQuizPage() {
         <div className="edit-sidebar-header">
           <h3>Pytania</h3>
           <button className="add-question-btn"
-            style={{ fontSize: "13px", padding: "5px 10px" }}
+            style={{ fontSize: "13px", padding: "6px 12px", boxShadow: "0 4px 0 #1D4ED8" }}
             onClick={() => setAddingType(true)}>
             + Dodaj
           </button>
         </div>
 
         <div className="edit-sidebar-meta"
-          style={{ background: step === "meta" && !addingType ? "#e3f2fd" : "" }}
+          style={{ background: step === "meta" && !addingType ? "#F5F3FF" : "" }}
           onClick={() => { setStep("meta"); setAddingType(false); }}>
-          📋 Tytuł i opis
+          Tytuł i opis
         </div>
 
         <div className="edit-question-list">
@@ -257,6 +258,22 @@ function EditQuizPage() {
             Łącznie: <strong>{totalPoints} pkt</strong>
           </div>
         )}
+
+        {/* SHUFFLE TOGGLE */}
+        <div className="shuffle-toggle-row">
+          <div className="shuffle-toggle-label">
+            Losuj pytania
+            <span>Kolejność pytań będzie losowa dla graczy</span>
+          </div>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={shuffle}
+              onChange={(e) => setShuffle(e.target.checked)}
+            />
+            <span className="toggle-slider" />
+          </label>
+        </div>
       </aside>
 
       {/* PRAWA STRONA */}
@@ -264,7 +281,7 @@ function EditQuizPage() {
         <div className="edit-top-bar">
           <span className="edit-top-title">{title || "Bez tytułu"}</span>
           <button className="save-btn" onClick={handleSave} disabled={saving}>
-            {saving ? "Zapisywanie..." : "💾 Zapisz quiz"}
+            {saving ? "Zapisywanie..." : "Zapisz quiz"}
           </button>
         </div>
 
@@ -282,7 +299,7 @@ function EditQuizPage() {
                 ))}
               </div>
               <div className="wizard-actions" style={{ marginTop: "20px" }}>
-                <button className="back-btn" onClick={() => setAddingType(false)}>← Anuluj</button>
+                <button className="back-btn" onClick={() => setAddingType(false)}>Anuluj</button>
               </div>
             </div>
           )}
@@ -308,7 +325,7 @@ function EditQuizPage() {
                   <span className="question-type-badge">{typeLabels[questions[activeIndex].type]}</span>
                 </div>
                 <button className="remove-btn" onClick={() => handleDeleteQuestion(activeIndex)}>
-                  🗑️ Usuń pytanie
+                  Usuń pytanie
                 </button>
               </div>
 
@@ -321,9 +338,9 @@ function EditQuizPage() {
 
               <div className="wizard-actions">
                 <button className="back-btn" disabled={activeIndex === 0}
-                  onClick={() => setActiveIndex(i => i - 1)}>← Poprzednie</button>
+                  onClick={() => setActiveIndex(i => i - 1)}>Poprzednie</button>
                 <button className="add-question-btn" disabled={activeIndex === questions.length - 1}
-                  onClick={() => setActiveIndex(i => i + 1)}>Następne →</button>
+                  onClick={() => setActiveIndex(i => i + 1)}>Następne</button>
               </div>
             </div>
           )}
@@ -331,7 +348,7 @@ function EditQuizPage() {
           {/* BRAK PYTAŃ */}
           {!addingType && step === "questions" && questions.length === 0 && (
             <div className="wizard-card">
-              <p style={{ color: "#888", textAlign: "center" }}>
+              <p style={{ color: "#9CA3AF", textAlign: "center", fontWeight: 700 }}>
                 Brak pytań. Kliknij "+ Dodaj" żeby dodać pierwsze pytanie.
               </p>
             </div>

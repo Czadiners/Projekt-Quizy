@@ -1,0 +1,100 @@
+.footer {
+  background-color: #12122b; /* Ciemny, elegancki granat */
+  color: #e0e0e0;
+  padding: 3rem 2rem 1rem;
+  border-top: 1px solid #2a2a4a;
+  margin-top: auto; /* Automatycznie spycha stopkę na dół ekranu */
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.footer-brand h3 {
+  font-size: 1.5rem;
+  color: #ffffff;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.footer-brand p {
+  line-height: 1.5;
+  color: #9aa0b6;
+  font-size: 0.95rem;
+}
+
+.footer-links-group {
+  display: flex;
+  gap: 4rem;
+  flex-wrap: wrap;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-column h4 {
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.footer-column a {
+  color: #9aa0b6;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+  font-size: 0.95rem;
+}
+
+.footer-column a:hover {
+  color: #4facfe; /* Ładny niebieski hover */
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 3rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a2a4a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: #6a7086;
+  font-size: 0.85rem;
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Responsywność dla telefonów */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+  }
+  .footer-links-group {
+    gap: 2rem;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}

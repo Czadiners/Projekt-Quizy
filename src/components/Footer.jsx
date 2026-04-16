@@ -18,7 +18,7 @@ function Footer() {
 
           <div className="footer-column">
             <h4>Wsparcie</h4>
-            <a href="mailto:pomoc@quizapp.pl">pomoc@quizapp.pl</a>
+            <a href="mailto:pomoc@quizapp.pl">pomoc@quizyyy.pl</a>
             <Link to="/faq">FAQ</Link>
             <Link to="/regulamin">Regulamin</Link>
           </div>
@@ -27,7 +27,7 @@ function Footer() {
 
       {/* Dolny pasek */}
       <div className="footer-bottom">
-        <p>&copy; {currentYear} Quiz App. Wszelkie prawa zastrzeżone.</p>
+        <p>&copy; {currentYear} Quizyyy. Wszelkie prawa zastrzeżone.</p>
         <div className="socials">
           <span>📱</span>
           <span>💻</span>

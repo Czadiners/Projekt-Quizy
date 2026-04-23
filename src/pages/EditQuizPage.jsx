@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
+import ConfirmModal from "../components/ConfirmModal";
+import Toast from "../components/Toast";
 
 const typeLabels = {
   single:    "Jednokrotny wybór",
@@ -136,24 +138,38 @@ function EditQuizPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [questions, setQuestions] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [step, setStep] = useState("questions");
-  const [addingType, setAddingType] = useState(false);
-  const [shuffle, setShuffle] = useState(false);
+  const [loading, setLoading]           = useState(true);
+  const [saving, setSaving]             = useState(false);
+  const [title, setTitle]               = useState("");
+  const [description, setDescription]   = useState("");
+  const [questions, setQuestions]       = useState([]);
+  const [activeIndex, setActiveIndex]   = useState(0);
+  const [step, setStep]                 = useState("questions");
+  const [addingType, setAddingType]     = useState(false);
+  const [shuffle, setShuffle]           = useState(false);
+
+  const [saveError, setSaveError]           = useState("");
+  const [toast, setToast]                   = useState(null);
+  const [deleteTarget, setDeleteTarget]     = useState(null);
+
+  const hideToast = useCallback(() => setToast(null), []);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         const ref = doc(db, "quizzes", quizId);
         const snap = await getDoc(ref);
-        if (!snap.exists()) { alert("Quiz nie istnieje."); navigate("/manage"); return; }
+        if (!snap.exists()) {
+          setToast({ message: "Quiz nie istnieje.", type: "error" });
+          setTimeout(() => navigate("/manage"), 2000);
+          return;
+        }
         const data = snap.data();
-        if (data.authorId !== auth.currentUser.uid) { alert("Brak dostępu."); navigate("/manage"); return; }
+        if (data.authorId !== auth.currentUser.uid) {
+          setToast({ message: "Brak dostępu do tego quizu.", type: "error" });
+          setTimeout(() => navigate("/manage"), 2000);
+          return;
+        }
         setTitle(data.title);
         setDescription(data.description || "");
         const qs = (data.questions || []).map(q => ({
@@ -163,7 +179,7 @@ function EditQuizPage() {
         setQuestions(qs);
         setShuffle(data.shuffleQuestions ?? false);
       } catch (err) {
-        alert("Błąd podczas wczytywania: " + err.message);
+        setToast({ message: "Błąd podczas wczytywania: " + err.message, type: "error" });
       } finally {
         setLoading(false);
       }
@@ -176,26 +192,32 @@ function EditQuizPage() {
     .reduce((sum, q) => sum + (q.points || 1), 0);
 
   const handleSave = async () => {
-    if (!title.trim()) { alert("Podaj tytuł quizu."); return; }
-    if (questions.length === 0) { alert("Dodaj przynajmniej jedno pytanie."); return; }
+    setSaveError("");
+    if (!title.trim()) { setSaveError("Podaj tytuł quizu."); setStep("meta"); return; }
+    if (questions.length === 0) { setSaveError("Dodaj przynajmniej jedno pytanie."); return; }
     for (let i = 0; i < questions.length; i++) {
       const err = validateQuestion(questions[i], i);
-      if (err) { alert(err); setActiveIndex(i); setStep("questions"); return; }
+      if (err) { setSaveError(err); setActiveIndex(i); setStep("questions"); return; }
     }
     setSaving(true);
     try {
       await updateDoc(doc(db, "quizzes", quizId), { title, description, questions, shuffleQuestions: shuffle });
-      alert("Quiz zapisany!");
-      navigate("/manage");
+      setToast({ message: "Quiz został zapisany!", type: "success" });
+      setTimeout(() => navigate("/manage"), 1800);
     } catch (err) {
-      alert("Błąd podczas zapisywania: " + err.message);
+      setSaveError("Błąd podczas zapisywania: " + err.message);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteQuestion = (i) => {
-    if (!window.confirm(`Usunąć pytanie ${i + 1}?`)) return;
+    setDeleteTarget(i);
+  };
+
+  const confirmDeleteQuestion = () => {
+    const i = deleteTarget;
+    setDeleteTarget(null);
     const updated = questions.filter((_, idx) => idx !== i);
     setQuestions(updated);
     setActiveIndex(Math.min(i, Math.max(0, updated.length - 1)));
@@ -217,7 +239,24 @@ function EditQuizPage() {
 
   return (
     <div className="edit-page">
-      {/* lewy panel tam gdzie sie wyswietlaja pytania w quizie itd zeby szybki dostep byl */}
+      {/* Toast powiadomienie */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onHide={hideToast} />
+      )}
+
+      {/* Modal potwierdzenia usunięcia pytania */}
+      {deleteTarget !== null && (
+        <ConfirmModal
+          title="Usuń pytanie"
+          message={`Czy na pewno chcesz usunąć pytanie ${deleteTarget + 1}?`}
+          confirmLabel="Usuń pytanie"
+          cancelLabel="Anuluj"
+          onConfirm={confirmDeleteQuestion}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* lewy panel */}
       <aside className="edit-sidebar">
         <div className="edit-sidebar-header">
           <h3>Pytania</h3>
@@ -259,7 +298,7 @@ function EditQuizPage() {
           </div>
         )}
 
-        {/* przelacznik od losowosci pytan*/}
+        {/* przełącznik losowości pytań */}
         <div className="shuffle-toggle-row">
           <div className="shuffle-toggle-label">
             Losuj pytania
@@ -285,8 +324,14 @@ function EditQuizPage() {
           </button>
         </div>
 
+        {saveError && (
+          <div style={{ padding: "0 24px" }}>
+            <p className="form-error" style={{ marginTop: 12 }}>{saveError}</p>
+          </div>
+        )}
+
         <div className="edit-main">
-          {/* wybor typu */}
+          {/* wybór typu */}
           {addingType && (
             <div className="wizard-card">
               <h2>Jakie pytanie chcesz dodać?</h2>
@@ -309,7 +354,7 @@ function EditQuizPage() {
               <h2>Tytuł i opis quizu</h2>
               <p className="wizard-subtitle">Możesz je tutaj zmienić</p>
               <input type="text" placeholder="Tytuł quizu" value={title}
-                onChange={(e) => setTitle(e.target.value)} />
+                onChange={(e) => { setTitle(e.target.value); setSaveError(""); }} />
               <textarea placeholder="Opis quizu (opcjonalnie)" value={description}
                 onChange={(e) => setDescription(e.target.value)} />
             </div>
@@ -344,11 +389,11 @@ function EditQuizPage() {
             </div>
           )}
 
-          {/* w przypadku gdy nie ma pytan */}
+          {/* brak pytań */}
           {!addingType && step === "questions" && questions.length === 0 && (
             <div className="wizard-card">
               <p style={{ color: "#9CA3AF", textAlign: "center", fontWeight: 700 }}>
-                Brak pytań. Kliknij "+ Dodaj" żeby dodać pierwsze pytanie.
+                Brak pytań. Kliknij „+ Dodaj" żeby dodać pierwsze pytanie.
               </p>
             </div>
           )}

@@ -587,7 +587,7 @@ a { text-decoration: none; color: inherit; }
 .quiz-card-count { font-size: 13px; color: var(--text-muted); font-weight: 700; }
 
 /* STRONA EDYCJI */
-.edit-page { display: flex; height: calc(100vh - var(--header-h)); overflow: hidden; margin: -32px; }
+.edit-page { display: flex; height: calc(100vh - var(--header-h)); overflow: hidden; margin: -12px -32px -32px; }
 .edit-sidebar {
   width: 260px; min-width: 260px; background: var(--card);
   border-right: 2px solid var(--border);

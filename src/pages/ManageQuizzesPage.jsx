@@ -6,6 +6,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
 import { createSession } from "../components/sessionUtils";
+import ConfirmModal from "../components/ConfirmModal";
 
 const MAX_DESC_LENGTH = 120;
 
@@ -37,9 +38,10 @@ function computeQuestionStats(players, questions) {
 
 // quiz card
 function QuizCard({ quiz, onDelete }) {
-  const [expanded, setExpanded]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const [launching, setLaunching] = useState(false);
+  const [expanded, setExpanded]     = useState(false);
+  const [menuOpen, setMenuOpen]     = useState(false);
+  const [launching, setLaunching]   = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const menuRef  = useRef(null);
   const navigate = useNavigate();
 
@@ -56,9 +58,13 @@ function QuizCard({ quiz, onDelete }) {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     setMenuOpen(false);
-    if (!window.confirm(`Usunąć quiz "${quiz.title}"?`)) return;
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setShowConfirm(false);
     await onDelete(quiz.id);
   };
 
@@ -75,49 +81,62 @@ function QuizCard({ quiz, onDelete }) {
   };
 
   return (
-    <div className={`quiz-card ${menuOpen ? "quiz-card--menu-open" : ""}`}>
-      <div className="quiz-card-header">
-        <h3 className="quiz-card-title">{quiz.title}</h3>
-        <div className="quiz-card-menu" ref={menuRef}>
-          <button className="menu-btn" onClick={() => setMenuOpen(p => !p)} title="Opcje">⚙</button>
-          {menuOpen && (
-            <div className="menu-dropdown">
-              <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
-                Edytuj quiz
-              </button>
-              <button onClick={handleLaunch} disabled={launching}>
-                {launching ? "Uruchamianie..." : "Uruchom sesję"}
-              </button>
-              <button className="delete-option" onClick={handleDelete}>
-                Usuń quiz
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {quiz.description ? (
-        <div className="quiz-card-desc">
-          <p>{displayDesc}</p>
-          {isLong && (
-            <button className="expand-btn" onClick={() => setExpanded(p => !p)}>
-              {expanded ? "Zwiń" : "Rozwiń"}
-            </button>
-          )}
-        </div>
-      ) : (
-        <p className="quiz-card-no-desc">Brak opisu</p>
+    <>
+      {showConfirm && (
+        <ConfirmModal
+          title="Usuń quiz"
+          message={`Czy na pewno chcesz usunąć quiz „${quiz.title}"? Tej operacji nie można cofnąć.`}
+          confirmLabel="Usuń quiz"
+          cancelLabel="Anuluj"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setShowConfirm(false)}
+        />
       )}
 
-      <div className="quiz-card-footer">
-        <span className="quiz-card-count">{quiz.questions?.length ?? 0} pytań</span>
-        {quiz.shuffleQuestions && (
-          <span style={{ fontSize: "12px", color: "var(--primary)", fontWeight: 800, marginLeft: 10 }}>
-            Losowanie wł.
-          </span>
+      <div className={`quiz-card ${menuOpen ? "quiz-card--menu-open" : ""}`}>
+        <div className="quiz-card-header">
+          <h3 className="quiz-card-title">{quiz.title}</h3>
+          <div className="quiz-card-menu" ref={menuRef}>
+            <button className="menu-btn" onClick={() => setMenuOpen(p => !p)} title="Opcje">⚙</button>
+            {menuOpen && (
+              <div className="menu-dropdown">
+                <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
+                  Edytuj quiz
+                </button>
+                <button onClick={handleLaunch} disabled={launching}>
+                  {launching ? "Uruchamianie..." : "Uruchom sesję"}
+                </button>
+                <button className="delete-option" onClick={handleDelete}>
+                  Usuń quiz
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {quiz.description ? (
+          <div className="quiz-card-desc">
+            <p>{displayDesc}</p>
+            {isLong && (
+              <button className="expand-btn" onClick={() => setExpanded(p => !p)}>
+                {expanded ? "Zwiń" : "Rozwiń"}
+              </button>
+            )}
+          </div>
+        ) : (
+          <p className="quiz-card-no-desc">Brak opisu</p>
         )}
+
+        <div className="quiz-card-footer">
+          <span className="quiz-card-count">{quiz.questions?.length ?? 0} pytań</span>
+          {quiz.shuffleQuestions && (
+            <span style={{ fontSize: "12px", color: "var(--primary)", fontWeight: 800, marginLeft: 10 }}>
+              Losowanie wł.
+            </span>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 // wiersze sesji

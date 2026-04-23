@@ -46,7 +46,7 @@ body {
   padding:0;
   margin: 0;
   font-family: 'Nunito', sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
@@ -174,18 +174,22 @@ a { text-decoration: none; color: inherit; }
    MAIN CONTENT
 ═══════════════════════════════════════════════ */
 .main-content {
-  margin-top: var(--header-h);
-  height: calc(100vh - var(--header-h));
-  overflow-y: hidden; padding: 32px;
+  min-height: calc(100vh - var(--header-h) - 12px);
+  margin-top: calc(var(--header-h) + 12px);
+  /* height: calc(100vh - var(--header-h)); */
+  overflow-y: hidden; 
+  padding-inline: 32px;
+  
 }
 
 /* ═══════════════════════════════════════════════
    MAIN PAGE / HERO
 ═══════════════════════════════════════════════ */
 .main-page {
+  min-height: calc(100vh - var(--header-h) - 12px);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;      /* Sztywna wysokość pozwala na poprawne działanie overflow */
+  justify-content: space-between;
 }
 
 .hero {
@@ -324,9 +328,9 @@ a { text-decoration: none; color: inherit; }
 .auth-page {
   display: flex; justify-content: center; flex-direction: column;
   /*align-items: center;*/
-  height: calc(100vh - var(--header-h) - 64px);
-  padding: 24px;
-  overflow:hidden;
+  min-height: calc(100vh - var(--header-h) - 12px);
+  padding-inline: 24px;
+
 }
 .auth-card {
   margin: auto;
@@ -344,6 +348,12 @@ a { text-decoration: none; color: inherit; }
   font-size: 28px; margin: 0 auto 16px;
   box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
 }
+
+.IconImage{
+  width: 90px;
+  height: auto;
+}
+
 .auth-card h2 { margin: 0 0 6px; font-size: 26px; font-weight: 900; color: var(--text); }
 .auth-card-subtitle { margin: 0; font-size: 15px; color: var(--text-muted); font-weight: 600; }
 .auth-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
@@ -1025,7 +1035,7 @@ a { text-decoration: none; color: inherit; }
    RESPONSIVE
 ═══════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .main-content { padding: 16px; }
+  .main-content { padding-inline: 16px; }
   .hero { padding: 44px 28px; border-radius: 20px; }
   .hero h2 { font-size: 32px; }
   .hero p { font-size: 16px; }

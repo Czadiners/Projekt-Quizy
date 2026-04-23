@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import "./Footer.css"; 
+import "./Footer.css";
+import {Laptop,Phone,Tablet} from "lucide-react"
 
 function Footer() {
   const currentYear = new Date().getFullYear(); // Automatyczny rok
@@ -29,9 +30,9 @@ function Footer() {
       <div className="footer-bottom">
         <p>&copy; {currentYear} Quizyyy. Wszelkie prawa zastrzeżone.</p>
         <div className="socials">
-          <span>📱</span>
-          <span>💻</span>
-          <span>✉️</span>
+          <span><Phone/></span>
+          <span><Laptop/></span>
+          <span><Tablet/></span>
         </div>
       </div>
     </footer>

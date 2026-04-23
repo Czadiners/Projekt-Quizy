@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, onSnapshot, collection, updateDoc } from "firebase/firestore";
 import { db } from "../components/Firebase";
+import {Medal} from "lucide-react";
 
 
 function downloadCSV(filename, rows) {
@@ -29,7 +30,7 @@ function Podium({ players }) {
     <div className="results-podium">
       {order.map((p, idx) => {
         const rank = ranks[idx];
-        const medals = ["🥇", "🥈", "🥉"];
+        const medals = [<Medal color="gold" size="100px"/>, <Medal color="silver" size="100px"/>, <Medal color="brown" size="100px"/>];
         const rankClass = `podium-place podium-place--${rank}`;
         return (
           <div key={p.id} className={rankClass}>

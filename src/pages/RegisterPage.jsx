@@ -49,7 +49,7 @@ function RegisterPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-card-header">
-          <img className="IconImage" src="/Projekt-Quizy/Icon.png"></img>
+          <img className="IconImage" style={{width:"auto", height:"150px"}} src="/Projekt-Quizy/mini.png"></img>
           <h2>Utwórz konto</h2>
           <p className="auth-card-subtitle">Dołącz i twórz własne quizy</p>
         </div>

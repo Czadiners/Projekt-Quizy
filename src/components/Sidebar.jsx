@@ -17,7 +17,7 @@ function Sidebar({ isOpen, toggleSidebar, user, setUser }) {
   };
 
   const getInitial = () => {
-    if (!user) return "👤";
+    if (!user) return <img className="IconImage" style={{height:"110px", width:"auto"}} src="/Projekt-Quizy/mini.png"></img>;
     if (user.displayName) return user.displayName[0].toUpperCase();
     if (user.email) return user.email[0].toUpperCase();
     return "?";
@@ -30,7 +30,7 @@ function Sidebar({ isOpen, toggleSidebar, user, setUser }) {
       <div className="profile-section">
         <div
           className="profile-icon"
-          style={{ background: user ? "#4caf50" : "#888" }}
+          style={{ background: user ? "#4caf50" : " #ffffffff" }}
           onClick={() => setProfileOpen(!profileOpen)}
         >
           {getInitial()}

@@ -6,7 +6,6 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../components/Firebase";
 import { createSession } from "../components/sessionUtils";
-import ConfirmModal from "../components/ConfirmModal";
 
 const MAX_DESC_LENGTH = 120;
 
@@ -38,10 +37,10 @@ function computeQuestionStats(players, questions) {
 
 // quiz card
 function QuizCard({ quiz, onDelete }) {
-  const [expanded, setExpanded]     = useState(false);
-  const [menuOpen, setMenuOpen]     = useState(false);
-  const [launching, setLaunching]   = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [expanded, setExpanded]         = useState(false);
+  const [menuOpen, setMenuOpen]         = useState(false);
+  const [launching, setLaunching]       = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const menuRef  = useRef(null);
   const navigate = useNavigate();
 
@@ -58,16 +57,6 @@ function QuizCard({ quiz, onDelete }) {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  const handleDelete = () => {
-    setMenuOpen(false);
-    setShowConfirm(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    setShowConfirm(false);
-    await onDelete(quiz.id);
-  };
-
   const handleLaunch = async () => {
     setMenuOpen(false);
     setLaunching(true);
@@ -80,65 +69,80 @@ function QuizCard({ quiz, onDelete }) {
     }
   };
 
-  return (
-    <>
-      {showConfirm && (
-        <ConfirmModal
-          title="Usuń quiz"
-          message={`Czy na pewno chcesz usunąć quiz „${quiz.title}"? Tej operacji nie można cofnąć.`}
-          confirmLabel="Usuń quiz"
-          cancelLabel="Anuluj"
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setShowConfirm(false)}
-        />
-      )}
-
-      <div className={`quiz-card ${menuOpen ? "quiz-card--menu-open" : ""}`}>
-        <div className="quiz-card-header">
-          <h3 className="quiz-card-title">{quiz.title}</h3>
-          <div className="quiz-card-menu" ref={menuRef}>
-            <button className="menu-btn" onClick={() => setMenuOpen(p => !p)} title="Opcje">⚙</button>
-            {menuOpen && (
-              <div className="menu-dropdown">
-                <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
-                  Edytuj quiz
-                </button>
-                <button onClick={handleLaunch} disabled={launching}>
-                  {launching ? "Uruchamianie..." : "Uruchom sesję"}
-                </button>
-                <button className="delete-option" onClick={handleDelete}>
-                  Usuń quiz
-                </button>
-              </div>
-            )}
+  // widok potwierdzenia usuwania quizu
+  if (confirmDelete) {
+    return (
+      <div className="quiz-card quiz-card--confirm">
+        <div className="quiz-card-confirm-inner">
+          <div className="quiz-card-confirm-icon">🗑️</div>
+          <div className="quiz-card-confirm-title">{quiz.title}</div>
+          <p className="quiz-card-confirm-warning">
+            Tej operacji <strong>nie można cofnąć</strong>
+          </p>
+          <p className="quiz-card-confirm-sub">
+            Quiz zostanie trwale usunięty wraz z całą zawartością.
+          </p>
+          <div className="quiz-card-confirm-actions">
+            <button className="back-btn" onClick={() => setConfirmDelete(false)}>
+              Anuluj
+            </button>
+            <button className="quiz-card-delete-confirm-btn" onClick={() => onDelete(quiz.id)}>
+              Usuń quiz
+            </button>
           </div>
         </div>
+      </div>
+    );
+  }
 
-        {quiz.description ? (
-          <div className="quiz-card-desc">
-            <p>{displayDesc}</p>
-            {isLong && (
-              <button className="expand-btn" onClick={() => setExpanded(p => !p)}>
-                {expanded ? "Zwiń" : "Rozwiń"}
+  // normalny widok bloczku danego quizu
+  return (
+    <div className={`quiz-card ${menuOpen ? "quiz-card--menu-open" : ""}`}>
+      <div className="quiz-card-header">
+        <h3 className="quiz-card-title">{quiz.title}</h3>
+        <div className="quiz-card-menu" ref={menuRef}>
+          <button className="menu-btn" onClick={() => setMenuOpen(p => !p)} title="Opcje">⚙</button>
+          {menuOpen && (
+            <div className="menu-dropdown">
+              <button onClick={() => { setMenuOpen(false); navigate(`/edit/${quiz.id}`); }}>
+                Edytuj quiz
               </button>
-            )}
-          </div>
-        ) : (
-          <p className="quiz-card-no-desc">Brak opisu</p>
-        )}
-
-        <div className="quiz-card-footer">
-          <span className="quiz-card-count">{quiz.questions?.length ?? 0} pytań</span>
-          {quiz.shuffleQuestions && (
-            <span style={{ fontSize: "12px", color: "var(--primary)", fontWeight: 800, marginLeft: 10 }}>
-              Losowanie wł.
-            </span>
+              <button onClick={handleLaunch} disabled={launching}>
+                {launching ? "Uruchamianie..." : "Uruchom sesję"}
+              </button>
+              <button className="delete-option" onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}>
+                Usuń quiz
+              </button>
+            </div>
           )}
         </div>
       </div>
-    </>
+
+      {quiz.description ? (
+        <div className="quiz-card-desc">
+          <p>{displayDesc}</p>
+          {isLong && (
+            <button className="expand-btn" onClick={() => setExpanded(p => !p)}>
+              {expanded ? "Zwiń" : "Rozwiń"}
+            </button>
+          )}
+        </div>
+      ) : (
+        <p className="quiz-card-no-desc">Brak opisu</p>
+      )}
+
+      <div className="quiz-card-footer">
+        <span className="quiz-card-count">{quiz.questions?.length ?? 0} pytań</span>
+        {quiz.shuffleQuestions && (
+          <span style={{ fontSize: "12px", color: "var(--primary)", fontWeight: 800, marginLeft: 10 }}>
+            Losowanie wł.
+          </span>
+        )}
+      </div>
+    </div>
   );
 }
+
 // wiersze sesji
 function SessionRow({ session, navigate }) {
   const [expanded, setExpanded]    = useState(false);
@@ -260,7 +264,6 @@ function SessionRow({ session, navigate }) {
             <div className="stats-summary-label">Najtrudniejsze</div>
           </div>
         </div>
-
         <div className="stats-grid">
           {stats.map(s => (
             <div key={s.index} className="stat-card">
@@ -278,10 +281,7 @@ function SessionRow({ session, navigate }) {
               {s.type !== "text" ? (
                 <>
                   <div className="stat-bar-bg" style={{ marginTop: 10 }}>
-                    <div
-                      className={`stat-bar-fill ${colorClass(s.pct)}`}
-                      style={{ width: `${s.pct ?? 0}%` }}
-                    />
+                    <div className={`stat-bar-fill ${colorClass(s.pct)}`} style={{ width: `${s.pct ?? 0}%` }} />
                   </div>
                   <div className="stat-meta">{s.correct} / {s.answered} poprawnych odpowiedzi</div>
                 </>
@@ -343,13 +343,11 @@ function SessionRow({ session, navigate }) {
               Statystyki pytań
             </button>
           </div>
-
           {loadingInner && (
             <p style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 700, padding: "14px 0" }}>
               Ładowanie...
             </p>
           )}
-
           {!loadingInner && innerTab === "players" && (
             !players || players.length === 0 ? (
               <p style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 700, padding: "14px 0" }}>
@@ -375,7 +373,6 @@ function SessionRow({ session, navigate }) {
               </table>
             )
           )}
-
           {!loadingInner && innerTab === "stats" && renderStats()}
         </div>
       )}

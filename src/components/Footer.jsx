@@ -3,12 +3,12 @@ import "./Footer.css";
 import {Laptop,Phone,Tablet} from "lucide-react"
 
 function Footer() {
-  const currentYear = new Date().getFullYear(); // Automatyczny rok
+  const currentYear = new Date().getFullYear(); //automatycczny rok ktory sie wyswietla na stronie
 
   return (
     <footer className="footer">
       <div className="footer-content" style={{display:"flex",justifyContent:"center"}}>
-        {/* Prawa strona - Linki podzielone na kolumny */}
+        {/* prawa czesc - podzial linkow kolumnami */}
         <div className="footer-links-group">
           <div className="footer-column">
             <h4 style={{color:"black"}}>Nawigacja</h4>
@@ -26,7 +26,7 @@ function Footer() {
         </div>
       </div>
 
-      {/* Dolny pasek */}
+      {/* dolny pasek */}
       <div className="footer-bottom">
         <p>&copy; {currentYear} Quizyyy. Wszelkie prawa zastrzeżone.</p>
         <div className="socials">

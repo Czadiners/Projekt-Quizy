@@ -38,9 +38,8 @@ function PlayPage() {
         const quizSnap = await getDoc(doc(db, "quizzes", data.quizId));
         if (quizSnap.exists()) {
           const qData = { id: quizSnap.id, ...quizSnap.data() };
-          // Apply shuffle if enabled on this quiz.
-          // Tag each question with its original index BEFORE shuffling
-          // so answers can be saved back in the correct original position.
+          // wlaczanie losowosci pytan tylko wtedy kiedy jest wlaczona ta opcja w quizie
+          // oznaczanie pytania z oryginalnym indeksem przed tasowaniem zeby nie wyswietlaly sie pytania o zlych numerkach w podsumowaniu i w zapisywaniu
           if (Array.isArray(qData.questions)) {
             qData.questions = qData.questions.map((q, idx) => ({ ...q, _originalIndex: idx }));
             if (qData.shuffleQuestions) {
@@ -108,9 +107,8 @@ function PlayPage() {
 
     let totalScore = 0;
 
-    // Build a result for each question in SHUFFLED display order,
-    // then sort by _originalIndex so Firestore stores answers
-    // in the same order as the original quiz questions.
+    // tworzenie podsumowania w kolejnosci takiej jaka byla losowana
+    // sortowanie przez te oryginalne indeksy i zapisywanie odpowiedzi w firestore
     const answersUnsorted = quiz.questions.map((q, displayIndex) => {
       const userAnswer = answers[displayIndex] ?? null;
       let correct = false;
@@ -132,12 +130,11 @@ function PlayPage() {
       }
 
       totalScore += earnedPoints;
-      // Use _originalIndex if present (shuffle was on), else use displayIndex
+      // sortowanie w przypadku wlaczonej losowosci przez te oznaczone oryginalne indeksy, a jak wylaczone to przez displayindex
       const originalIndex = q._originalIndex ?? displayIndex;
       return { questionIndex: originalIndex, answer: userAnswer, correct, earnedPoints, needsManualReview: q.type === "text" };
     });
 
-    // Sort by original question index so array[0] = original question 0, etc.
     const answersArray = [...answersUnsorted].sort((a, b) => a.questionIndex - b.questionIndex);
 
     try {
@@ -193,7 +190,7 @@ function PlayPage() {
 
   return (
     <div className="play-page">
-      {/* PROGRESS */}
+      {/* progres */}
       <div className="play-progress-bar">
         <div className="play-progress-fill" style={{ width: `${progressPct}%` }} />
       </div>
@@ -208,7 +205,7 @@ function PlayPage() {
 
         <h2 className="play-question">{currentQuestion.question}</h2>
 
-        {/* SINGLE CHOICE — 2×2 colored tiles */}
+        {/* jednokrotny wybor - kolorki */}
         {currentQuestion.type === "single" && (
           <div className="play-answers">
             {currentQuestion.answers.map((answer, i) => (
@@ -224,7 +221,7 @@ function PlayPage() {
           </div>
         )}
 
-        {/* MULTIPLE CHOICE — 2×2 colored tiles */}
+        {/* wielokrotny wybor - kolorki */}
         {currentQuestion.type === "multiple" && (
           <>
             <p className="correct-hint" style={{ textAlign: "center", marginBottom: "8px" }}>
@@ -247,7 +244,7 @@ function PlayPage() {
           </>
         )}
 
-        {/* TRUE / FALSE — 2 wide tiles */}
+        {/* pytania prawda lub falsz zajmujace dwa bloczki */}
         {currentQuestion.type === "truefalse" && (
           <div className="play-answers play-answers--tf">
             <button
@@ -265,7 +262,7 @@ function PlayPage() {
           </div>
         )}
 
-        {/* TEXT ANSWER */}
+        {/* wlasna odpowiedz - tekstowa */}
         {currentQuestion.type === "text" && (
           <div className="play-text-answer play-answers--text">
             <textarea

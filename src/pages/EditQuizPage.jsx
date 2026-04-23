@@ -217,7 +217,7 @@ function EditQuizPage() {
 
   return (
     <div className="edit-page">
-      {/* LEWY PANEL */}
+      {/* lewy panel tam gdzie sie wyswietlaja pytania w quizie itd zeby szybki dostep byl */}
       <aside className="edit-sidebar">
         <div className="edit-sidebar-header">
           <h3>Pytania</h3>
@@ -259,7 +259,7 @@ function EditQuizPage() {
           </div>
         )}
 
-        {/* SHUFFLE TOGGLE */}
+        {/* przelacznik od losowosci pytan*/}
         <div className="shuffle-toggle-row">
           <div className="shuffle-toggle-label">
             Losuj pytania
@@ -276,7 +276,7 @@ function EditQuizPage() {
         </div>
       </aside>
 
-      {/* PRAWA STRONA */}
+      {/* prawa strona */}
       <div className="edit-right">
         <div className="edit-top-bar">
           <span className="edit-top-title">{title || "Bez tytułu"}</span>
@@ -286,7 +286,7 @@ function EditQuizPage() {
         </div>
 
         <div className="edit-main">
-          {/* WYBÓR TYPU */}
+          {/* wybor typu */}
           {addingType && (
             <div className="wizard-card">
               <h2>Jakie pytanie chcesz dodać?</h2>
@@ -304,7 +304,6 @@ function EditQuizPage() {
             </div>
           )}
 
-          {/* META */}
           {!addingType && step === "meta" && (
             <div className="wizard-card">
               <h2>Tytuł i opis quizu</h2>
@@ -316,7 +315,7 @@ function EditQuizPage() {
             </div>
           )}
 
-          {/* EDYCJA PYTANIA */}
+          {/* edycja pytania */}
           {!addingType && step === "questions" && questions.length > 0 && (
             <div className="wizard-card">
               <div className="question-header">
@@ -345,7 +344,7 @@ function EditQuizPage() {
             </div>
           )}
 
-          {/* BRAK PYTAŃ */}
+          {/* w przypadku gdy nie ma pytan */}
           {!addingType && step === "questions" && questions.length === 0 && (
             <div className="wizard-card">
               <p style={{ color: "#9CA3AF", textAlign: "center", fontWeight: 700 }}>

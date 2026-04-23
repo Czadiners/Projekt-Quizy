@@ -27,8 +27,6 @@ function MainPage() {
           </div>
         </div>
       </section>
-
-      <div className="spacer" />
       <Footer />
     </div>
   );

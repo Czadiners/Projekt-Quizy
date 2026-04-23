@@ -48,7 +48,7 @@ function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-card-header">
-          <div className="auth-card-icon">🔑</div>
+          <div className="auth-card-icon"><img class="IconImage" src="/Projekt-Quizy/key.png"></img></div>
           <h2>Witaj z powrotem!</h2>
           <p className="auth-card-subtitle">Zaloguj się, aby zarządzać quizami</p>
         </div>
@@ -83,7 +83,7 @@ function LoginPage() {
               onClick={() => setShowPass((p) => !p)}
               tabIndex={-1}
             >
-              {showPass ? "🙈" : "👁"}
+              {showPass ? "👁" : "👁"}
             </button>
           </div>
         </div>

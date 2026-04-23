@@ -1,9 +1,10 @@
 .footer {
-  background-color: #12122b; /* Ciemny, elegancki granat */
+  background-color: #12122b;
   color: #e0e0e0;
-  padding: 3rem 2rem 1rem;
+  /* ZMNIEJSZONO: padding górny z 3rem na 1.5rem */
+  padding: 1rem 2rem;
   border-top: 1px solid #2a2a4a;
-  margin-top: auto; /* Automatycznie spycha stopkę na dół ekranu */
+  margin-top: auto;
 }
 
 .footer-content {
@@ -24,12 +25,12 @@
 .footer-brand h3 {
   font-size: 1.5rem;
   color: #ffffff;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem; /* ZMNIEJSZONO z 1rem */
   margin-top: 0;
 }
 
 .footer-brand p {
-  line-height: 1.5;
+  line-height: 1.4; /* ZMNIEJSZONO z 1.5 dla lepszego upakowania tekstu */
   color: #9aa0b6;
   font-size: 0.95rem;
 }
@@ -43,12 +44,14 @@
 .footer-column {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  /* ZMNIEJSZONO: przerwy między linkami z 0.75rem na 0.4rem */
+  gap: 0.4rem;
 }
 
 .footer-column h4 {
   color: #ffffff;
-  margin-bottom: 0.5rem;
+  /* ZMNIEJSZONO: margines pod nagłówkiem z 0.5rem na 0.25rem */
+  margin-bottom: 0.25rem;
   margin-top: 0;
   font-size: 1.1rem;
 }
@@ -61,19 +64,21 @@
 }
 
 .footer-column a:hover {
-  color: #4facfe; /* Ładny niebieski hover */
+  color: #4facfe;
 }
 
 .footer-bottom {
   max-width: 1200px;
-  margin: 3rem auto 0;
-  padding-top: 1.5rem;
+  /* ZMNIEJSZONO: margines górny z 3rem na 1.5rem */
+  margin: 1.5rem auto 0;
+  /* ZMNIEJSZONO: padding górny z 1.5rem na 0.75rem */
+  padding-top: 0.75rem;
   border-top: 1px solid #2a2a4a;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem; /* ZMNIEJSZONO z 1rem na wypadek załamania w pionie */
   color: #6a7086;
   font-size: 0.85rem;
 }
@@ -85,7 +90,7 @@
   cursor: pointer;
 }
 
-/* Responsywność dla telefonów */
+/* Responsywność dla telefonów pozostaje bez większych zmian */
 @media (max-width: 768px) {
   .footer-content {
     flex-direction: column;

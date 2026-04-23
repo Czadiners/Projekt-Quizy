@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../components/Firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import Footer from "../components/Footer";
 
 function getFirebaseError(code) {
   switch (code) {
@@ -48,7 +49,7 @@ function RegisterPage() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-card-header">
-          <div className="auth-card-icon">✨</div>
+          <img className="IconImage" src="/Projekt-Quizy/Icon.png"></img>
           <h2>Utwórz konto</h2>
           <p className="auth-card-subtitle">Dołącz i twórz własne quizy</p>
         </div>
@@ -94,7 +95,7 @@ function RegisterPage() {
               onKeyDown={handleKey}
             />
             <button className="auth-eye-btn" type="button" onClick={() => setShowConf((p) => !p)} tabIndex={-1}>
-              {showConf ? "🙈" : "👁"}
+              {showConf ? "👁" : "👁"}
             </button>
           </div>
         </div>
@@ -112,6 +113,7 @@ function RegisterPage() {
           <Link to="/login">Zaloguj się</Link>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 }

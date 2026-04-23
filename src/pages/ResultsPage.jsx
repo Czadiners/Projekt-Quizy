@@ -21,7 +21,7 @@ function downloadCSV(filename, rows) {
 function Podium({ players }) {
   if (players.length === 0) return null;
   const top = players.slice(0, 3);
-  // Render order: 2nd, 1st, 3rd
+  // kolejnosc wyswietlania podium 2,1,3
   const order = [top[1], top[0], top[2]].filter(Boolean);
   const ranks = top[1] ? [2, 1, 3] : [1];
 
@@ -107,7 +107,7 @@ function ResultsPage() {
     return autoMaxPoints + manualGranted;
   };
 
-  /* ── PLAYER VIEW ── */
+  // widok gracza
   if (isPlayerView) {
     if (!player) return <div className="manage-page"><p className="loading-text">Ładowanie wyników...</p></div>;
     const myRank = players.findIndex(p => p.id === playerId) + 1;
@@ -180,7 +180,7 @@ function ResultsPage() {
     );
   }
 
-  /* ── HOST VIEW ── */
+  // widok hosta
   return (
     <div className="results-page">
       <div className="results-header">

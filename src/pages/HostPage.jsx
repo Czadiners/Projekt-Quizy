@@ -89,7 +89,7 @@ function HostPage() {
         </div>
       </div>
 
-      {/* BIG PIN CODE */}
+      {/* pin do gry */}
       <div className="session-code-banner">
         <span className="session-code-label">Kod dostępu</span>
         <span className="session-code">{session.code}</span>

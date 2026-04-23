@@ -83,8 +83,7 @@ function CreateQuizPage() {
     setStep("question");
     setError("");
   };
-
-  // Navigate backwards through the wizard
+// nawigacja pomiedzy pytaniami 
   const goBack = () => {
     setError("");
     if (currentQuestionIndex > 0) {
@@ -94,7 +93,6 @@ function CreateQuizPage() {
     }
   };
 
-  // Navigate forward to the next existing question
   const goNext = () => {
     setError("");
     if (currentQuestionIndex < questions.length - 1) {
@@ -129,7 +127,7 @@ function CreateQuizPage() {
     }
   };
 
-  /* ── Wybór typu pytania ── */
+// wybor typu pytania przy dodawaniu nowego itd
   if (addingType) return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -154,7 +152,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  /* ── Krok 1: tytuł ── */
+  // nazywanie quizu
   if (step === "title") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -181,7 +179,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  /* ── Krok 2: opis ── */
+  // opis quizu (jest opcjonalny)
   if (step === "description") return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -201,7 +199,7 @@ function CreateQuizPage() {
     </div>
   );
 
-  /* ── Krok 3: pytania ── */
+// pytania
   if (step === "question" && currentQuestion) return (
     <div className="create-quiz-page">
       <div className="wizard-card">
@@ -287,26 +285,26 @@ function CreateQuizPage() {
         {error && <p className="form-error">{error}</p>}
 
         <div className="wizard-actions">
-          {/* Wstecz — zawsze */}
+          {/* cofanie się(zawsze się pokazuje) */}
           <button className="back-btn" onClick={goBack}>
             Wstecz
           </button>
 
-          {/* Następne — tylko gdy jest kolejne pytanie */}
+          {/* przechodzenie do nastepnego (tylko gdy jest kolejne pytanie) */}
           {!isLastQuestion && (
             <button className="add-question-btn" onClick={goNext}>
               Następne
             </button>
           )}
 
-          {/* Dodaj pytanie — zawsze (na ostatnim pytaniu) */}
+          {/* dodawanie pytania */}
           {isLastQuestion && (
             <button className="add-question-btn" onClick={() => setAddingType(true)}>
               Dodaj pytanie
             </button>
           )}
 
-          {/* Zapisz — zawsze */}
+          {/* zapisywanie quizu*/}
           <button className="save-btn" onClick={handleSave} disabled={saving}>
             {saving ? "Zapisywanie..." : "Zapisz quiz"}
           </button>

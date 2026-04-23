@@ -1,7 +1,6 @@
 .footer {
   background-color: #12122b;
   color: #e0e0e0;
-  /* ZMNIEJSZONO: padding górny z 3rem na 1.5rem */
   padding: 1rem 2rem;
   border-top: 1px solid #2a2a4a;
   margin-top: auto;
@@ -25,12 +24,12 @@
 .footer-brand h3 {
   font-size: 1.5rem;
   color: #ffffff;
-  margin-bottom: 0.5rem; /* ZMNIEJSZONO z 1rem */
+  margin-bottom: 0.5rem;
   margin-top: 0;
 }
 
 .footer-brand p {
-  line-height: 1.4; /* ZMNIEJSZONO z 1.5 dla lepszego upakowania tekstu */
+  line-height: 1.4;
   color: #9aa0b6;
   font-size: 0.95rem;
 }
@@ -44,13 +43,11 @@
 .footer-column {
   display: flex;
   flex-direction: column;
-  /* ZMNIEJSZONO: przerwy między linkami z 0.75rem na 0.4rem */
   gap: 0.4rem;
 }
 
 .footer-column h4 {
   color: #ffffff;
-  /* ZMNIEJSZONO: margines pod nagłówkiem z 0.5rem na 0.25rem */
   margin-bottom: 0.25rem;
   margin-top: 0;
   font-size: 1.1rem;
@@ -69,16 +66,14 @@
 
 .footer-bottom {
   max-width: 1200px;
-  /* ZMNIEJSZONO: margines górny z 3rem na 1.5rem */
   margin: 1.5rem auto 0;
-  /* ZMNIEJSZONO: padding górny z 1.5rem na 0.75rem */
   padding-top: 0.75rem;
   border-top: 1px solid #2a2a4a;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem; /* ZMNIEJSZONO z 1rem na wypadek załamania w pionie */
+  gap: 0.5rem;
   color: #6a7086;
   font-size: 0.85rem;
 }
@@ -90,7 +85,7 @@
   cursor: pointer;
 }
 
-/* Responsywność dla telefonów pozostaje bez większych zmian */
+/* responsywnosc dla telefonow */
 @media (max-width: 768px) {
   .footer-content {
     flex-direction: column;

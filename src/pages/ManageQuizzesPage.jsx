@@ -9,8 +9,6 @@ import { createSession } from "../components/sessionUtils";
 
 const MAX_DESC_LENGTH = 120;
 
-/* ─── helpers ───────────────────────────────────────────────────── */
-
 function downloadCSV(filename, rows) {
   const escape = (v) => {
     const s = String(v ?? "");
@@ -37,7 +35,7 @@ function computeQuestionStats(players, questions) {
   });
 }
 
-/* ─── Quiz Card ─────────────────────────────────────────────────── */
+// quiz card
 function QuizCard({ quiz, onDelete }) {
   const [expanded, setExpanded]   = useState(false);
   const [menuOpen, setMenuOpen]   = useState(false);
@@ -122,8 +120,7 @@ function QuizCard({ quiz, onDelete }) {
     </div>
   );
 }
-
-/* ─── Session Row ───────────────────────────────────────────────── */
+// wiersze sesji
 function SessionRow({ session, navigate }) {
   const [expanded, setExpanded]    = useState(false);
   const [innerTab, setInnerTab]    = useState("players");
@@ -367,7 +364,7 @@ function SessionRow({ session, navigate }) {
   );
 }
 
-/* ─── Session History ───────────────────────────────────────────── */
+// historia sesji
 function SessionHistory() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -414,7 +411,7 @@ function SessionHistory() {
   );
 }
 
-/* ─── Main Page ─────────────────────────────────────────────────── */
+// main page
 function ManageQuizzesPage() {
   const [quizzes, setQuizzes]     = useState([]);
   const [loading, setLoading]     = useState(true);

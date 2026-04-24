@@ -1162,8 +1162,7 @@ a { text-decoration: none; color: inherit; }
   border: 2px solid #FECACA !important;
   border-top: 5px solid var(--danger) !important;
   background: #FFF5F5 !important;
-  animation: confirm-appear 0.22s cubic-bezier(0.34, 1.4, 0.64, 1),
-             confirm-pulse 2s ease-in-out 0.3s infinite;
+  animation: confirm-appear 0.22s cubic-bezier(0.34, 1.4, 0.64, 1);
   transform-origin: center;
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08), var(--shadow-md) !important;
 }
@@ -1173,12 +1172,24 @@ a { text-decoration: none; color: inherit; }
   to   { transform: scale(1);    opacity: 1; }
 }
 
-@keyframes confirm-pulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08), var(--shadow-md); }
-  50%       { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.13), var(--shadow-md); }
+/* Trzęsienie aktywowane co 3 sekundy przez JS (dodawana/usuwana klasa is-shaking) */
+.quiz-card--confirm.is-shaking {
+  animation: card-shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
-/* Wewnętrzny layout karty potwierdzenia */
+@keyframes card-shake {
+  0%   { transform: translateX(0); }
+  12%  { transform: translateX(-7px) rotate(-1.5deg); }
+  25%  { transform: translateX(6px)  rotate(1.5deg); }
+  37%  { transform: translateX(-5px) rotate(-1deg); }
+  50%  { transform: translateX(4px)  rotate(0.8deg); }
+  62%  { transform: translateX(-3px) rotate(-0.5deg); }
+  75%  { transform: translateX(2px); }
+  87%  { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+/* Wewnętrzny layout */
 .quiz-card-confirm-inner {
   display: flex;
   flex-direction: column;
@@ -1188,32 +1199,26 @@ a { text-decoration: none; color: inherit; }
   gap: 6px;
 }
 
-/* Ikona kosza */
-.quiz-card-confirm-icon {
-  font-size: 36px;
-  line-height: 1;
-  margin-bottom: 4px;
-  animation: icon-shake 0.5s ease 0.25s;
+/* Nagłówek "Usunąć quiz?" zamiast emoji */
+.quiz-card-confirm-headline {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--danger-dark);
+  letter-spacing: -0.4px;
+  margin-bottom: 2px;
+  line-height: 1.2;
 }
 
-@keyframes icon-shake {
-  0%, 100% { transform: rotate(0deg); }
-  20%       { transform: rotate(-12deg); }
-  40%       { transform: rotate(10deg); }
-  60%       { transform: rotate(-8deg); }
-  80%       { transform: rotate(6deg); }
-}
-
-/* Tytuł quizu */
+/* Tytuł quizu w czerwonawej pigułce */
 .quiz-card-confirm-title {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--text);
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid #FECACA;
   border-radius: var(--r-sm);
   padding: 5px 16px;
-  margin: 4px 0 6px;
+  margin: 6px 0 8px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1226,9 +1231,6 @@ a { text-decoration: none; color: inherit; }
   font-weight: 800;
   color: var(--danger-dark);
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 /* Szary podtytuł */
@@ -1256,7 +1258,6 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 4px 0 var(--border-strong);
 }
 
-/* Przycisk "Usuń quiz" */
 .quiz-card-delete-confirm-btn {
   padding: 9px 20px;
   background: var(--danger);
@@ -1279,3 +1280,4 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(4px);
   box-shadow: 0 0 0 var(--danger-shadow);
 }
+

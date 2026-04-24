@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   collection, query, where, getDocs,
@@ -35,12 +35,14 @@ function computeQuestionStats(players, questions) {
   });
 }
 
-// quiz card
+// ── Karta quizu ────────────────────────────────────────────────────────────────
 function QuizCard({ quiz, onDelete }) {
-  const [expanded, setExpanded]         = useState(false);
-  const [menuOpen, setMenuOpen]         = useState(false);
-  const [launching, setLaunching]       = useState(false);
+  const [expanded, setExpanded]           = useState(false);
+  const [menuOpen, setMenuOpen]           = useState(false);
+  const [launching, setLaunching]         = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [shaking, setShaking]             = useState(false);
+  const cardRef  = useRef(null);
   const menuRef  = useRef(null);
   const navigate = useNavigate();
 
@@ -49,6 +51,7 @@ function QuizCard({ quiz, onDelete }) {
     ? quiz.description
     : quiz.description.slice(0, MAX_DESC_LENGTH) + "...";
 
+  // Zamykaj menu po kliknięciu poza nim
   useEffect(() => {
     const h = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
@@ -56,6 +59,28 @@ function QuizCard({ quiz, onDelete }) {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
+
+  // Shake co 3 sekundy gdy karta jest w trybie potwierdzenia
+  useEffect(() => {
+    if (!confirmDelete) return;
+
+    // Pierwsze drgnięcie zaraz po wejściu w tryb potwierdzenia
+    const firstShake = setTimeout(() => {
+      setShaking(true);
+      setTimeout(() => setShaking(false), 600);
+    }, 400);
+
+    // Następnie co 3 sekundy
+    const interval = setInterval(() => {
+      setShaking(true);
+      setTimeout(() => setShaking(false), 600);
+    }, 3000);
+
+    return () => {
+      clearTimeout(firstShake);
+      clearInterval(interval);
+    };
+  }, [confirmDelete]);
 
   const handleLaunch = async () => {
     setMenuOpen(false);
@@ -69,24 +94,33 @@ function QuizCard({ quiz, onDelete }) {
     }
   };
 
-  // widok potwierdzenia usuwania quizu
+  // potwierdzanie usuwania
   if (confirmDelete) {
     return (
-      <div className="quiz-card quiz-card--confirm">
+      <div
+        ref={cardRef}
+        className={`quiz-card quiz-card--confirm${shaking ? " is-shaking" : ""}`}
+      >
         <div className="quiz-card-confirm-inner">
-          <div className="quiz-card-confirm-icon">🗑️</div>
+          <div className="quiz-card-confirm-headline">Usunąć quiz?</div>
+
           <div className="quiz-card-confirm-title">{quiz.title}</div>
+
           <p className="quiz-card-confirm-warning">
             Tej operacji <strong>nie można cofnąć</strong>
           </p>
           <p className="quiz-card-confirm-sub">
             Quiz zostanie trwale usunięty wraz z całą zawartością.
           </p>
+
           <div className="quiz-card-confirm-actions">
             <button className="back-btn" onClick={() => setConfirmDelete(false)}>
               Anuluj
             </button>
-            <button className="quiz-card-delete-confirm-btn" onClick={() => onDelete(quiz.id)}>
+            <button
+              className="quiz-card-delete-confirm-btn"
+              onClick={() => onDelete(quiz.id)}
+            >
               Usuń quiz
             </button>
           </div>
@@ -95,7 +129,7 @@ function QuizCard({ quiz, onDelete }) {
     );
   }
 
-  // normalny widok bloczku danego quizu
+  // normalny widok
   return (
     <div className={`quiz-card ${menuOpen ? "quiz-card--menu-open" : ""}`}>
       <div className="quiz-card-header">
@@ -110,7 +144,10 @@ function QuizCard({ quiz, onDelete }) {
               <button onClick={handleLaunch} disabled={launching}>
                 {launching ? "Uruchamianie..." : "Uruchom sesję"}
               </button>
-              <button className="delete-option" onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}>
+              <button
+                className="delete-option"
+                onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}
+              >
                 Usuń quiz
               </button>
             </div>
@@ -237,9 +274,9 @@ function SessionRow({ session, navigate }) {
       </p>
     );
 
-    const stats  = computeQuestionStats(players, quiz.questions ?? []);
-    const autoQ  = stats.filter(s => s.type !== "text");
-    const avgPct = autoQ.length > 0
+    const stats   = computeQuestionStats(players, quiz.questions ?? []);
+    const autoQ   = stats.filter(s => s.type !== "text");
+    const avgPct  = autoQ.length > 0
       ? Math.round(autoQ.reduce((s, q) => s + (q.pct ?? 0), 0) / autoQ.length)
       : null;
     const hardest = autoQ.length > 0
@@ -335,13 +372,9 @@ function SessionRow({ session, navigate }) {
         <div className="session-row-players">
           <div className="session-inner-tabs">
             <button className={`session-inner-tab ${innerTab === "players" ? "active" : ""}`}
-              onClick={() => setInnerTab("players")}>
-              Gracze
-            </button>
+              onClick={() => setInnerTab("players")}>Gracze</button>
             <button className={`session-inner-tab ${innerTab === "stats" ? "active" : ""}`}
-              onClick={() => setInnerTab("stats")}>
-              Statystyki pytań
-            </button>
+              onClick={() => setInnerTab("stats")}>Statystyki pytań</button>
           </div>
           {loadingInner && (
             <p style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 700, padding: "14px 0" }}>
@@ -359,9 +392,7 @@ function SessionRow({ session, navigate }) {
                 <tbody>
                   {players.map((p, i) => (
                     <tr key={p.id}>
-                      <td>{i + 1}</td>
-                      <td>{p.nick}</td>
-                      <td>{p.score ?? 0} pkt</td>
+                      <td>{i + 1}</td><td>{p.nick}</td><td>{p.score ?? 0} pkt</td>
                       <td>
                         <span className={`player-status player-status--${p.status}`}>
                           {p.status === "finished" ? "Ukończył" : "W trakcie"}
@@ -380,7 +411,7 @@ function SessionRow({ session, navigate }) {
   );
 }
 
-// historia sesji
+// ── Historia sesji ─────────────────────────────────────────────────────────────
 function SessionHistory() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -403,10 +434,7 @@ function SessionHistory() {
         setSessions(list);
         setLoading(false);
       },
-      (err) => {
-        console.error("Historia sesji – błąd:", err.message);
-        setLoading(false);
-      }
+      (err) => { console.error("Historia sesji – błąd:", err.message); setLoading(false); }
     );
     return () => unsub();
   }, []);
@@ -427,7 +455,7 @@ function SessionHistory() {
   );
 }
 
-// main page
+// ── Strona główna ──────────────────────────────────────────────────────────────
 function ManageQuizzesPage() {
   const [quizzes, setQuizzes]     = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -479,13 +507,9 @@ function ManageQuizzesPage() {
 
       <div className="manage-tabs">
         <button className={`manage-tab ${activeTab === "quizzes" ? "active" : ""}`}
-          onClick={() => setActiveTab("quizzes")}>
-          Moje quizy
-        </button>
+          onClick={() => setActiveTab("quizzes")}>Moje quizy</button>
         <button className={`manage-tab ${activeTab === "history" ? "active" : ""}`}
-          onClick={() => setActiveTab("history")}>
-          Historia sesji
-        </button>
+          onClick={() => setActiveTab("history")}>Historia sesji</button>
       </div>
 
       {activeTab === "quizzes" && (

@@ -35,7 +35,7 @@ function computeQuestionStats(players, questions) {
   });
 }
 
-// ── Karta quizu ────────────────────────────────────────────────────────────────
+// ──karta quizu
 function QuizCard({ quiz, onDelete }) {
   const [expanded, setExpanded]           = useState(false);
   const [menuOpen, setMenuOpen]           = useState(false);
@@ -51,7 +51,7 @@ function QuizCard({ quiz, onDelete }) {
     ? quiz.description
     : quiz.description.slice(0, MAX_DESC_LENGTH) + "...";
 
-  // Zamykaj menu po kliknięciu poza nim
+  // zamykanie menu po kliknieciu poza nim
   useEffect(() => {
     const h = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
@@ -411,7 +411,7 @@ function SessionRow({ session, navigate }) {
   );
 }
 
-// ── Historia sesji ─────────────────────────────────────────────────────────────
+// historia sesji
 function SessionHistory() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading]   = useState(true);
@@ -455,7 +455,7 @@ function SessionHistory() {
   );
 }
 
-// ── Strona główna ──────────────────────────────────────────────────────────────
+// Strona główna
 function ManageQuizzesPage() {
   const [quizzes, setQuizzes]     = useState([]);
   const [loading, setLoading]     = useState(true);

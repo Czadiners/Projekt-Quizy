@@ -35,7 +35,7 @@ function computeQuestionStats(players, questions) {
   });
 }
 
-// ──karta quizu
+// karta quizu
 function QuizCard({ quiz, onDelete }) {
   const [expanded, setExpanded]           = useState(false);
   const [menuOpen, setMenuOpen]           = useState(false);
@@ -60,7 +60,7 @@ function QuizCard({ quiz, onDelete }) {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  // Shake co 3 sekundy gdy karta jest w trybie potwierdzenia
+  // trzesienie sie bloczku z quizem co 3 sekundy gdy karta jest w trybie potwierdzenia usuniecia
   useEffect(() => {
     if (!confirmDelete) return;
 
